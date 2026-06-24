@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Night ⚽</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Bebas+Neue&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00C853;--red:#FF3D00;--maybe:#FFB300;--late:#A78BFA;
+  --blue:#2196F3;--court:#1A1A2E;--panel:#16213E;--line:#0F3460;
+  --white:#F0F4FF;--dim:#8892A4;--radius:14px;
+}
+body{background:var(--court);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
+
+header{width:100%;background:linear-gradient(135deg,var(--line),var(--panel));border-bottom:3px solid var(--green);padding:16px 24px 14px;text-align:center}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:3px}
+header h1{font-family:'Bebas Neue',cursive;font-size:clamp(32px,8vw,54px);letter-spacing:2px;line-height:1}
+header h1 span{color:var(--green)}
+.kickoff-tag{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:var(--court);border:1px solid var(--line);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:600;color:var(--dim);flex-wrap:wrap;justify-content:center}
+.kickoff-tag strong{color:var(--white)}
+#live-clock{font-variant-numeric:tabular-nums;color:var(--maybe)}
+
+.tab-bar{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,1fr);margin:12px 0 0;padding:0 14px;gap:5px}
+.tab-btn{padding:8px 2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--dim);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:var(--green);border-color:var(--green);color:#000}
+
+.page{width:100%;max-width:480px;display:none}
+.page.active{display:flex;flex-direction:column;gap:12px;padding:0 14px;margin-top:12px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.card-title{padding:11px 15px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:700;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+
+/* TODAY STATUS BAR */
+.status-bar{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 15px;display:flex;justify-content:space-between;align-items:center}
+.status-bar .slabel{font-size:11px;color:var(--dim);font-weight:600}
+.status-bar .sval{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--white)}
+.vstatus{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:1px}
+.status-open{background:rgba(0,200,83,.15);color:var(--green);border:1px solid var(--green)}
+.status-game{background:rgba(33,150,243,.15);color:var(--blue);border:1px solid var(--blue)}
+
+/* ROSTER */
+#roster-wrap{padding:12px 15px 15px}
+.roster-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.member-chip{border-radius:10px;padding:9px 5px 7px;background:var(--court);border:1.5px solid var(--line);cursor:pointer;transition:all .15s;text-align:center;user-select:none}
+.member-chip:hover{border-color:var(--dim)}
+.member-chip.selected-yes{border-color:var(--green);background:rgba(0,200,83,.12)}
+.member-chip.selected-late{border-color:var(--late);background:rgba(167,139,250,.12)}
+.member-chip.selected-maybe{border-color:var(--maybe);background:rgba(255,179,0,.12)}
+.member-chip.selected-no{border-color:var(--red);background:rgba(255,61,0,.12);opacity:.7}
+.chip-avatar{width:32px;height:32px;border-radius:50%;background:var(--line);margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--white);text-transform:uppercase}
+.member-chip.selected-yes .chip-avatar{background:var(--green);color:#000}
+.member-chip.selected-late .chip-avatar{background:var(--late);color:#000}
+.member-chip.selected-maybe .chip-avatar{background:var(--maybe);color:#000}
+.member-chip.selected-no .chip-avatar{background:var(--red);color:#fff}
+.chip-name{font-size:10px;font-weight:700;color:var(--white);line-height:1.2;word-break:break-word}
+.chip-badge{font-size:9px;margin-top:3px;min-height:12px;font-weight:600}
+
+/* VOTE PICKER */
+.vote-picker{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:2px solid var(--line);border-radius:18px 18px 0 0;padding:18px 20px 30px;z-index:100;transform:translateY(100%);transition:transform .25s ease;box-shadow:0 -8px 30px rgba(0,0,0,.5)}
+.vote-picker.open{transform:translateY(0)}
+.picker-name{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:1px;margin-bottom:12px;color:var(--white)}
+.picker-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.p-btn{border:none;border-radius:11px;padding:12px 6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .12s}
+.p-btn:hover{transform:scale(1.03)}
+.p-btn .icon{font-size:20px}
+.p-btn-yes{background:var(--green);color:#000}.p-btn-maybe{background:var(--maybe);color:#000}
+.p-btn-late{background:var(--late);color:#000}.p-btn-no{background:var(--red);color:#fff}
+.p-btn-clear{background:var(--line);color:var(--dim);grid-column:span 2;font-size:12px;padding:9px;border-radius:9px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;margin-top:2px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}
+.overlay.open{display:block}
+
+/* GUEST */
+.guest-wrap{padding:12px 15px 13px}
+.guest-wrap input{width:100%;background:var(--court);border:1.5px solid var(--line);border-radius:9px;color:var(--white);font-family:'Inter',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s;margin-bottom:8px}
+.guest-wrap input::placeholder{color:var(--dim)}
+.guest-wrap input:focus{border-color:var(--green)}
+.guest-vote-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.gv-btn{border:none;border-radius:9px;padding:9px 3px;cursor:pointer;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .12s}
+.gv-btn:hover{transform:translateY(-1px)}
+.gv-btn .icon{font-size:17px}
+.gv-btn-yes{background:var(--green);color:#000}.gv-btn-maybe{background:var(--maybe);color:#000}
+.gv-btn-late{background:var(--late);color:#000}.gv-btn-no{background:var(--red);color:#fff}
+#guest-msg{font-size:11px;text-align:center;min-height:15px;font-weight:600;margin-top:5px}
+
+/* TALLY */
+.tally-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line)}
+.tally-cell{padding:10px 4px;text-align:center;border-right:1px solid var(--line)}
+.tally-cell:last-child{border-right:none}
+.t-label{font-size:9px;color:var(--dim);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.t-num{font-family:'Bebas Neue',cursive;font-size:36px;line-height:1;margin:2px 0 1px}
+
+/* PLAYER LIST */
+#player-list{padding:8px 15px 13px}
+.player-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(15,52,96,.6);animation:fadeIn .3s ease}
+.player-item:last-child{border-bottom:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.player-name{font-size:13px;font-weight:600}
+.player-time{font-size:10px;color:var(--dim);margin-top:1px}
+.vote-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px}
+.badge-yes{background:rgba(0,200,83,.15);color:var(--green)}
+.badge-no{background:rgba(255,61,0,.15);color:var(--red)}
+.badge-maybe{background:rgba(255,179,0,.15);color:var(--maybe)}
+.badge-late{background:rgba(167,139,250,.15);color:var(--late)}
+.empty-state{text-align:center;color:var(--dim);font-size:13px;padding:14px 0}
+.tag-guest{font-size:8px;color:var(--maybe);font-weight:700;margin-left:5px;background:rgba(255,179,0,.1);padding:1px 4px;border-radius:4px;vertical-align:middle}
+
+/* WA */
+.share-pad{padding:0 15px 13px}
+.wa-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:var(--radius);padding:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:background .2s}
+.wa-btn:hover{background:#1ebe5d}
+.auto-info{font-size:11px;color:var(--dim);text-align:center;margin-top:5px}
+
+#reset-btn{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:99px;padding:7px 18px;font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;align-self:center}
+#reset-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* MEMBERS PAGE */
+#members-list{padding:8px 15px 4px}
+.member-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(15,52,96,.6)}
+.member-row:last-child{border-bottom:none}
+.member-row-left{display:flex;align-items:center;gap:9px}
+.member-avatar{width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--white);text-transform:uppercase;flex-shrink:0}
+.member-name-text{font-size:13px;font-weight:600}
+.member-pair-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:4px}
+.del-btn{background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.3);color:var(--red);border-radius:7px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;flex-shrink:0}
+.del-btn:hover{background:rgba(255,61,0,.25)}
+.add-member-row{display:flex;gap:7px;padding:10px 15px 13px}
+.add-member-row input{flex:1;background:var(--court);border:1.5px solid var(--line);border-radius:9px;color:var(--white);font-family:'Inter',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s}
+.add-member-row input::placeholder{color:var(--dim)}
+.add-member-row input:focus{border-color:var(--green)}
+.add-member-row button{background:var(--green);border:none;border-radius:9px;color:#000;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;padding:9px 14px;cursor:pointer;white-space:nowrap}
+.members-empty{text-align:center;color:var(--dim);font-size:12px;padding:14px 0}
+.member-note{font-size:11px;color:var(--dim);text-align:center;padding:0 14px 10px;line-height:1.5}
+
+/* PAIRS SECTION */
+.pairs-section{padding:10px 15px 13px}
+.pair-card{background:var(--court);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.pair-card:last-child{margin-bottom:0}
+.pair-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pair-name-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:2px 0;outline:none;margin-right:10px}
+.pair-name-input::placeholder{color:var(--dim)}
+.pair-members-sel{display:flex;flex-wrap:wrap;gap:6px}
+.pair-member-btn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;border:1.5px solid var(--line);background:var(--court);color:var(--dim);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.pair-member-btn.selected{border-color:var(--green);background:rgba(0,200,83,.15);color:var(--green)}
+.pair-actions{display:flex;gap:6px;margin-top:8px}
+.pair-save-btn{flex:1;background:var(--green);border:none;border-radius:8px;color:#000;font-family:'Inter',sans-serif;font-size:11px;font-weight:800;padding:7px;cursor:pointer}
+.pair-del-btn{background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.3);color:var(--red);border-radius:8px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:7px 12px;cursor:pointer}
+.add-pair-btn{width:100%;background:var(--line);border:1px dashed var(--dim);color:var(--dim);border-radius:9px;padding:10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:4px}
+.add-pair-btn:hover{border-color:var(--green);color:var(--green)}
+#pairs-msg{font-size:11px;text-align:center;min-height:14px;font-weight:600;margin-top:6px}
+
+/* MONTHLY CALENDAR */
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid var(--line)}
+.month-nav button{background:var(--court);border:1px solid var(--line);color:var(--white);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:14px}
+#month-label{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px}
+.month-summary{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.ms-cell{padding:10px 6px;text-align:center;border-right:1px solid var(--line)}
+.ms-cell:last-child{border-right:none}
+.ms-num{font-family:'Bebas Neue',cursive;font-size:30px;line-height:1}
+.ms-label{font-size:9px;color:var(--dim);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.cal-grid{padding:10px 15px 13px}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.cal-dow span{text-align:center;font-size:9px;font-weight:700;color:var(--dim);letter-spacing:1px;padding:3px 0}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cal-day.empty{background:transparent}
+.cal-day.no-game{background:var(--court);color:var(--dim)}
+.cal-day.has-game{background:var(--line);color:var(--white);cursor:pointer;transition:transform .1s}
+.cal-day.has-game:hover{transform:scale(1.08)}
+.cal-day.today-marker{outline:2px solid var(--green)}
+.day-num{font-size:11px;font-weight:700;line-height:1}
+.day-dot{width:5px;height:5px;border-radius:50%;margin-top:2px}
+.dot-yes{background:var(--green)}.dot-maybe{background:var(--maybe)}.dot-no{background:var(--red)}.dot-empty{background:transparent}
+.legend{display:flex;gap:10px;padding:0 15px 12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim)}
+.legend-dot{width:7px;height:7px;border-radius:50%}
+#day-detail{margin:0 15px 13px;background:var(--court);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:none}
+#day-detail.visible{display:block}
+#day-detail h4{font-size:12px;font-weight:700;margin-bottom:8px;color:var(--green)}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(15,52,96,.5);font-size:12px}
+.detail-row:last-child{border-bottom:none}
+
+/* ═══ PERFORMANCE TAB ═══ */
+.perf-section{padding:12px 15px 15px}
+
+/* Match entry */
+.match-team-sel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.team-sel-box{background:var(--court);border:1.5px solid var(--line);border-radius:10px;padding:10px}
+.team-sel-box h5{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.team-sel-box h5.la{color:var(--blue)}.team-sel-box h5.lb{color:var(--red)}
+.pair-chip{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--court);color:var(--dim);cursor:pointer;transition:all .15s;margin-bottom:5px;display:block;width:100%;text-align:left;font-family:'Inter',sans-serif}
+.pair-chip:last-child{margin-bottom:0}
+.pair-chip.sel-a{border-color:var(--blue);background:rgba(33,150,243,.15);color:var(--blue)}
+.pair-chip.sel-b{border-color:var(--red);background:rgba(255,61,0,.15);color:var(--red)}
+.score-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:8px}
+.score-inp{background:var(--court);border:1.5px solid var(--line);border-radius:9px;color:var(--white);font-family:'Bebas Neue',cursive;font-size:30px;text-align:center;padding:6px 4px;outline:none;width:100%;transition:border-color .2s}
+.score-inp:focus{border-color:var(--green)}
+.vs-lbl{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--dim);text-align:center}
+.save-match-btn{width:100%;background:var(--green);border:none;border-radius:9px;color:#000;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;padding:10px;cursor:pointer;margin-bottom:4px}
+#match-msg{font-size:11px;text-align:center;min-height:14px;font-weight:600;margin-bottom:6px}
+
+/* Leaderboard tabs */
+.lb-period-bar{display:flex;gap:5px;margin-bottom:10px}
+.lb-period-btn{flex:1;padding:7px;background:var(--court);border:1px solid var(--line);border-radius:8px;color:var(--dim);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.lb-period-btn.active{background:var(--green);border-color:var(--green);color:#000}
+
+/* Team leaderboard row */
+.lb-team-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(15,52,96,.6)}
+.lb-team-row:last-child{border-bottom:none}
+.lb-rank{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--dim);width:22px;text-align:center;flex-shrink:0}
+.lb-rank.gold{color:#FFD700}.lb-rank.silver{color:#C0C0C0}.lb-rank.bronze{color:#CD7F32}
+.lb-pair-avatars{display:flex;gap:-4px;flex-shrink:0}
+.lb-avatar{width:28px;height:28px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;text-transform:uppercase;border:2px solid var(--panel)}
+.lb-avatar:nth-child(2){margin-left:-8px}
+.lb-team-info{flex:1}
+.lb-team-name{font-size:13px;font-weight:700}
+.lb-team-stats{font-size:10px;color:var(--dim);margin-top:1px}
+.lb-wins{text-align:right}
+.lb-wins-num{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--green);line-height:1}
+.lb-wins-label{font-size:9px;color:var(--dim);font-weight:600;letter-spacing:1px}
+
+/* Match history */
+.match-hist-item{padding:8px 0;border-bottom:1px solid rgba(15,52,96,.6);font-size:12px}
+.match-hist-item:last-child{border-bottom:none}
+.match-hist-teams{display:flex;align-items:center;gap:6px;font-weight:700}
+.mh-score{font-family:'Bebas Neue',cursive;font-size:18px;margin:0 3px}
+.mh-date{font-size:10px;color:var(--dim);margin-top:2px;display:flex;align-items:center;gap:6px}
+.winner-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;background:rgba(0,200,83,.15);color:var(--green)}
+.wa-perf-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:9px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;margin-top:6px}
+.wa-perf-btn:hover{background:#1ebe5d}
+.sec-div{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:700;padding:8px 0 5px;border-bottom:1px solid var(--line);margin-bottom:8px}
+
+@media(max-width:420px){.page.active{padding:0 10px}.tab-bar{padding:0 10px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Daily Poll · Badminton</div>
+  <h1>WHO'S <span>IN</span> TONIGHT?</h1>
+  <div class="kickoff-tag">🏸 Game: <strong>7:00–7:30 PM</strong> &nbsp;|&nbsp; <span id="live-clock"></span></div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('today')">📋 Today</button>
+  <button class="tab-btn" onclick="switchTab('history')">📅 Monthly</button>
+  <button class="tab-btn" onclick="switchTab('perf')">🏆 Stats</button>
+  <button class="tab-btn" onclick="switchTab('members')">👥 Squad</button>
+</div>
+
+<!-- ══ TODAY ══ -->
+<div id="page-today" class="page active">
+  <div class="status-bar">
+    <div><div class="slabel">Today</div><div class="sval" id="today-date-lbl"></div></div>
+    <div id="voting-status" class="vstatus status-open">OPEN ALL DAY</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👥 Squad — tap to vote <span id="roster-voted-count" style="color:var(--green)"></span></div>
+    <div id="roster-wrap">
+      <div class="roster-grid" id="roster-grid"></div>
+      <div id="roster-empty" class="members-empty" style="display:none">No members yet — go to Squad tab 👥</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🚶 Guest / Walk-in</div>
+    <div class="guest-wrap">
+      <input type="text" id="guest-input" placeholder="Guest name…" maxlength="30">
+      <div class="guest-vote-btns">
+        <button class="gv-btn gv-btn-yes"   onclick="guestVote('yes')"><span class="icon">✅</span>In</button>
+        <button class="gv-btn gv-btn-late"  onclick="guestVote('late')"><span class="icon">⏰</span>Late</button>
+        <button class="gv-btn gv-btn-maybe" onclick="guestVote('maybe')"><span class="icon">🤔</span>Maybe</button>
+        <button class="gv-btn gv-btn-no"    onclick="guestVote('no')"><span class="icon">❌</span>Out</button>
+      </div>
+      <div id="guest-msg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Today's Count</div>
+    <div class="tally-row">
+      <div class="tally-cell"><div class="t-label">In</div><div class="t-num" style="color:var(--green)" id="count-yes">0</div></div>
+      <div class="tally-cell"><div class="t-label">Late</div><div class="t-num" style="color:var(--late)" id="count-late">0</div></div>
+      <div class="tally-cell"><div class="t-label">Maybe</div><div class="t-num" style="color:var(--maybe)" id="count-maybe">0</div></div>
+      <div class="tally-cell"><div class="t-label">Out</div><div class="t-num" style="color:var(--red)" id="count-no">0</div></div>
+    </div>
+    <div id="player-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📲 WhatsApp</div>
+    <div class="share-pad">
+      <button class="wa-btn" onclick="shareVoteWA()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.121 1.532 5.858L.057 23.428a.5.5 0 00.622.583l5.701-1.492A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.716 9.716 0 01-4.917-1.333l-.353-.21-3.654.957.977-3.549-.23-.365A9.718 9.718 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+        Send Today's Poll
+      </button>
+      <div class="auto-info">Auto-shares after every 4th vote ⚡</div>
+    </div>
+  </div>
+
+  <button id="reset-btn" onclick="confirmReset()">🔄 Reset today's votes</button>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div id="page-history" class="page">
+  <div class="card">
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <span id="month-label"></span>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="month-summary">
+      <div class="ms-cell"><div class="ms-num" style="color:var(--green)" id="ms-games">0</div><div class="ms-label">Game Days</div></div>
+      <div class="ms-cell"><div class="ms-num" style="color:var(--maybe)" id="ms-avg">0</div><div class="ms-label">Avg Players</div></div>
+      <div class="ms-cell"><div class="ms-num" style="color:var(--white)" id="ms-total">0</div><div class="ms-label">Total Votes</div></div>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-dow"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div>
+      <div class="cal-days" id="cal-days"></div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Had players</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--maybe)"></div>All maybe</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>No one in</div>
+    </div>
+  </div>
+  <div id="day-detail"><h4 id="detail-title"></h4><div id="detail-list"></div></div>
+</div>
+
+<!-- ══ PERFORMANCE ══ -->
+<div id="page-perf" class="page">
+
+  <!-- Add match result -->
+  <div class="card">
+    <div class="card-title">➕ Add Match Result</div>
+    <div class="perf-section">
+      <div class="sec-div">Select Teams</div>
+      <div class="match-team-sel">
+        <div class="team-sel-box">
+          <h5 class="la">🔵 Team A</h5>
+          <div id="team-a-pairs"></div>
+        </div>
+        <div class="team-sel-box">
+          <h5 class="lb">🔴 Team B</h5>
+          <div id="team-b-pairs"></div>
+        </div>
+      </div>
+      <div class="sec-div">Score</div>
+      <div class="score-row">
+        <input class="score-inp" type="number" id="score-a" min="0" max="99" placeholder="0">
+        <div class="vs-lbl">VS</div>
+        <input class="score-inp" type="number" id="score-b" min="0" max="99" placeholder="0">
+      </div>
+      <div id="match-msg"></div>
+      <button class="save-match-btn" onclick="saveMatch()">💾 Save Match Result</button>
+    </div>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="card">
+    <div class="card-title">🏆 Team Leaderboard</div>
+    <div class="perf-section">
+      <div class="lb-period-bar">
+        <button class="lb-period-btn active" onclick="setLbPeriod('today')">Today</button>
+        <button class="lb-period-btn" onclick="setLbPeriod('week')">This Week</button>
+        <button class="lb-period-btn" onclick="setLbPeriod('month')">This Month</button>
+        <button class="lb-period-btn" onclick="setLbPeriod('all')">All Time</button>
+      </div>
+      <div id="lb-list"><div class="empty-state">No results yet</div></div>
+      <button class="wa-perf-btn" onclick="shareLeaderboardWA()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.121 1.532 5.858L.057 23.428a.5.5 0 00.622.583l5.701-1.492A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.716 9.716 0 01-4.917-1.333l-.353-.21-3.654.957.977-3.549-.23-.365A9.718 9.718 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+        Share Leaderboard to Group
+      </button>
+    </div>
+  </div>
+
+  <!-- Match history -->
+  <div class="card">
+    <div class="card-title">📋 Match History <span id="match-count" style="color:var(--green)"></span></div>
+    <div class="perf-section" id="match-history-list">
+      <div class="empty-state">No matches recorded yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SQUAD ══ -->
+<div id="page-members" class="page">
+
+  <!-- Members -->
+  <div class="card">
+    <div class="card-title">👥 Squad Members</div>
+    <div id="members-list"></div>
+    <div class="add-member-row">
+      <input type="text" id="new-member-input" placeholder="Add member name…" maxlength="25"
+             onkeydown="if(event.key==='Enter') addMember()">
+      <button onclick="addMember()">+ Add</button>
+    </div>
+  </div>
+
+  <!-- Fixed Pairs -->
+  <div class="card">
+    <div class="card-title">🤝 Fixed Pairs (2v2 Teams)</div>
+    <div class="pairs-section">
+      <div id="pairs-list"></div>
+      <button class="add-pair-btn" onclick="addPair()">+ Create New Pair</button>
+      <div id="pairs-msg"></div>
+    </div>
+  </div>
+
+  <div class="member-note">
+    Fixed pairs are used in the Stats tab to track team wins and build the leaderboard. Each pair = one team unit.
+  </div>
+</div>
+
+<!-- Pickers -->
+<div class="overlay" id="overlay" onclick="closePicker()"></div>
+<div class="vote-picker" id="vote-picker">
+  <div class="picker-name" id="picker-name">—</div>
+  <div class="picker-btns">
+    <button class="p-btn p-btn-yes"   onclick="memberVote('yes')"><span class="icon">✅</span>I'm In</button>
+    <button class="p-btn p-btn-late"  onclick="memberVote('late')"><span class="icon">⏰</span>Coming Late</button>
+    <button class="p-btn p-btn-maybe" onclick="memberVote('maybe')"><span class="icon">🤔</span>Maybe</button>
+    <button class="p-btn p-btn-no"    onclick="memberVote('no')"><span class="icon">❌</span>Can't Make It</button>
+  </div>
+  <button class="p-btn-clear" onclick="memberVote(null)">✕ Clear my vote</button>
+</div>
+
+<script>
+// ── STORAGE ───────────────────────────────────
+const K = { members:'gnv_members_v2', history:'gnv_history_v2', matches:'gnv_matches_v2', pairs:'gnv_pairs_v1' };
+function ls_get(key,def){ try{ const v=localStorage.getItem(key); return v!==null?JSON.parse(v):def; }catch{ return def; } }
+function ls_set(key,val){ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){ console.error(e); } }
+function pad(n){ return String(n).padStart(2,'0'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toDateStr(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function getWeekStr(d){ const t=new Date(d); t.setHours(0,0,0,0); t.setDate(t.getDate()-t.getDay()); return toDateStr(t); }
+function getMonthStr(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+
+const TODAY_STR   = toDateStr(new Date());
+const WEEK_STR    = getWeekStr(new Date());
+const MONTH_STR   = getMonthStr(new Date());
+
+let members = ls_get(K.members, []);
+let history = ls_get(K.history, {});
+let matches  = ls_get(K.matches, []);
+// pairs: [{id, name, playerA, playerB}]
+let pairs   = ls_get(K.pairs, []);
+
+// ── VOTE HELPERS ──────────────────────────────
+function getTodayVotes(){ return history[TODAY_STR]?.votes||[]; }
+function saveTodayVotes(votes){
+  if(!history[TODAY_STR]) history[TODAY_STR]={};
+  history[TODAY_STR].votes=votes;
+  ls_set(K.history,history);
+}
+
+// ── TODAY DATE LABEL ──────────────────────────
+function initDateLabel(){
+  document.getElementById('today-date-lbl').textContent =
+    new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+}
+
+// ── ROSTER ────────────────────────────────────
+function renderRoster(){
+  const grid=document.getElementById('roster-grid');
+  const empty=document.getElementById('roster-empty');
+  grid.innerHTML='';
+  if(members.length===0){ empty.style.display='block'; grid.style.display='none'; document.getElementById('roster-voted-count').textContent=''; return; }
+  empty.style.display='none'; grid.style.display='grid';
+  const votes=getTodayVotes();
+  const voted=votes.filter(v=>members.some(m=>m.toLowerCase()===v.name.toLowerCase())).length;
+  document.getElementById('roster-voted-count').textContent=`${voted}/${members.length}`;
+  members.forEach(name=>{
+    const vote=votes.find(v=>v.name.toLowerCase()===name.toLowerCase())?.vote||null;
+    const selClass=vote?`selected-${vote}`:'';
+    const bm={yes:'✅ In',late:'⏰ Late',maybe:'🤔 Maybe',no:'❌ Out'};
+    const badge=vote?`<div class="chip-badge" style="color:${vc(vote)}">${bm[vote]}</div>`:`<div class="chip-badge" style="color:var(--dim)">—</div>`;
+    const chip=document.createElement('div');
+    chip.className=`member-chip ${selClass}`;
+    chip.innerHTML=`<div class="chip-avatar">${esc(name[0])}</div><div class="chip-name">${esc(name)}</div>${badge}`;
+    chip.onclick=()=>openPicker(name);
+    grid.appendChild(chip);
+  });
+}
+function vc(v){ return {yes:'var(--green)',late:'var(--late)',maybe:'var(--maybe)',no:'var(--red)'}[v]||'var(--dim)'; }
+
+// ── PICKER ────────────────────────────────────
+let pickerTarget=null;
+function openPicker(name){ pickerTarget=name; document.getElementById('picker-name').textContent=name; document.getElementById('vote-picker').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closePicker(){ document.getElementById('vote-picker').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); pickerTarget=null; }
+function memberVote(choice){
+  if(!pickerTarget) return;
+  const votes=getTodayVotes();
+  const idx=votes.findIndex(v=>v.name.toLowerCase()===pickerTarget.toLowerCase());
+  if(choice===null){ if(idx>-1) votes.splice(idx,1); }
+  else { const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); const e={name:pickerTarget,vote:choice,time:t,type:'member'}; if(idx>-1) votes[idx]=e; else votes.push(e); }
+  saveTodayVotes(votes); closePicker(); renderRoster(); renderScoreboard();
+  if(choice!==null) checkAutoShare(votes);
+}
+
+// ── GUEST VOTE ────────────────────────────────
+function guestVote(choice){
+  const input=document.getElementById('guest-input');
+  const name=input.value.trim();
+  if(!name){ input.focus(); input.style.borderColor='#FF3D00'; setTimeout(()=>input.style.borderColor='',1200); showGuestMsg('Enter guest name!','#FFB300'); return; }
+  if(members.some(m=>m.toLowerCase()===name.toLowerCase())){ showGuestMsg(`${name} is in squad — tap their chip!`,'#A78BFA'); return; }
+  const votes=getTodayVotes();
+  const idx=votes.findIndex(v=>v.name.toLowerCase()===name.toLowerCase());
+  const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const e={name,vote:choice,time:t,type:'guest'};
+  const isNew=idx===-1;
+  if(idx>-1) votes[idx]=e; else votes.push(e);
+  saveTodayVotes(votes); input.value='';
+  showGuestMsg(isNew?`${name} added! 🎉`:`Updated ${name}!`,'#00C853');
+  renderRoster(); renderScoreboard();
+  if(isNew) checkAutoShare(votes);
+}
+function showGuestMsg(t,c){ const el=document.getElementById('guest-msg'); el.textContent=t; el.style.color=c; setTimeout(()=>el.textContent='',3000); }
+
+// ── AUTO SHARE ────────────────────────────────
+function checkAutoShare(votes){ if(votes.length>0 && votes.length%4===0) setTimeout(()=>shareVoteWA(true),600); }
+
+// ── SCOREBOARD ────────────────────────────────
+function renderScoreboard(){
+  const votes=getTodayVotes();
+  document.getElementById('count-yes').textContent  =votes.filter(v=>v.vote==='yes').length;
+  document.getElementById('count-late').textContent =votes.filter(v=>v.vote==='late').length;
+  document.getElementById('count-maybe').textContent=votes.filter(v=>v.vote==='maybe').length;
+  document.getElementById('count-no').textContent   =votes.filter(v=>v.vote==='no').length;
+  const list=document.getElementById('player-list'); list.innerHTML='';
+  if(votes.length===0){ list.innerHTML='<div class="empty-state">No votes yet 🏸</div>'; return; }
+  [...votes].reverse().forEach(v=>{
+    const bc={yes:'badge-yes',no:'badge-no',maybe:'badge-maybe',late:'badge-late'}[v.vote];
+    const lb={yes:'✅ In',no:'❌ Out',maybe:'🤔 Maybe',late:'⏰ Late'}[v.vote];
+    const tag=v.type==='guest'?'<span class="tag-guest">GUEST</span>':'';
+    const el=document.createElement('div'); el.className='player-item';
+    el.innerHTML=`<div><div class="player-name">${esc(v.name)}${tag}</div><div class="player-time">${v.time}</div></div><span class="vote-badge ${bc}">${lb}</span>`;
+    list.appendChild(el);
+  });
+}
+function render(){ renderRoster(); renderScoreboard(); }
+
+// ── WHATSAPP VOTE ─────────────────────────────
+function shareVoteWA(auto=false){
+  const votes=getTodayVotes();
+  const yes=votes.filter(v=>v.vote==='yes'),late=votes.filter(v=>v.vote==='late'),maybe=votes.filter(v=>v.vote==='maybe'),no=votes.filter(v=>v.vote==='no');
+  const n=arr=>arr.map(v=>v.name).join(', ')||'none yet';
+  const d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const at=auto?'\n_[Auto update]_':'';
+  const msg=`🏸 *TONIGHT'S BADMINTON POLL* 🏸\n📅 ${d}\n⏰ Game: *7:00–7:30 PM*\n\n✅ *IN (${yes.length}):* ${n(yes)}\n⏰ *LATE (${late.length}):* ${n(late)}\n🤔 *MAYBE (${maybe.length}):* ${n(maybe)}\n❌ *OUT (${no.length}):* ${n(no)}\n\n👉 ${window.location.href}${at}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function confirmReset(){ if(confirm("Clear today's votes?")){ saveTodayVotes([]); render(); } }
+
+// ── MEMBERS ───────────────────────────────────
+function renderMembersList(){
+  const c=document.getElementById('members-list'); c.innerHTML='';
+  if(members.length===0){ c.innerHTML='<div class="members-empty">No members yet.</div>'; return; }
+  members.forEach((name,i)=>{
+    const pairOf=pairs.find(p=>p.playerA===name||p.playerB===name);
+    const pairBadge=pairOf?`<span class="member-pair-badge" style="background:rgba(0,200,83,.1);color:var(--green)">🤝 ${pairOf.name}</span>`:'';
+    const row=document.createElement('div'); row.className='member-row';
+    row.innerHTML=`<div class="member-row-left"><div class="member-avatar">${esc(name[0])}</div><div><div class="member-name-text">${esc(name)}</div>${pairBadge}</div></div><button class="del-btn" onclick="deleteMember(${i})">Remove</button>`;
+    c.appendChild(row);
+  });
+}
+function addMember(){
+  const input=document.getElementById('new-member-input');
+  const name=input.value.trim(); if(!name) return;
+  if(members.some(m=>m.toLowerCase()===name.toLowerCase())){ input.style.borderColor='#FF3D00'; setTimeout(()=>input.style.borderColor='',1200); return; }
+  members.push(name); ls_set(K.members,members); input.value='';
+  renderMembersList(); renderRoster(); renderPairsList(); renderTeamSelPairs();
+}
+function deleteMember(i){
+  if(!confirm(`Remove ${members[i]}?`)) return;
+  members.splice(i,1); ls_set(K.members,members);
+  renderMembersList(); renderRoster(); renderPairsList(); renderTeamSelPairs();
+}
+
+// ── PAIRS (FIXED 2-PLAYER TEAMS) ──────────────
+function pairId(){ return 'p_'+Date.now(); }
+
+function renderPairsList(){
+  const c=document.getElementById('pairs-list'); c.innerHTML='';
+  if(pairs.length===0){ c.innerHTML='<div class="members-empty">No pairs yet. Create your fixed 2-person teams below.</div>'; return; }
+  pairs.forEach((pair,pi)=>{
+    const box=document.createElement('div'); box.className='pair-card';
+    // member buttons for picking 2 players
+    const memberBtns=members.map(name=>{
+      const sel=pair.playerA===name||pair.playerB===name;
+      return `<button class="pair-member-btn ${sel?'selected':''}" onclick="togglePairMember(${pi},'${esc(name)}')">${esc(name)}</button>`;
+    }).join('');
+    box.innerHTML=`
+      <div class="pair-header">
+        <input class="pair-name-input" value="${esc(pair.name)}" placeholder="Pair name…" onchange="renamePair(${pi},this.value)" maxlength="20">
+        <button class="pair-del-btn" onclick="deletePair(${pi})">✕</button>
+      </div>
+      <div class="pair-members-sel" id="pms-${pi}">${memberBtns||'<span style="font-size:11px;color:var(--dim)">Add members first</span>'}</div>`;
+    c.appendChild(box);
+  });
+}
+
+function addPair(){
+  pairs.push({id:pairId(),name:`Pair ${pairs.length+1}`,playerA:null,playerB:null});
+  ls_set(K.pairs,pairs); renderPairsList(); renderTeamSelPairs();
+}
+function renamePair(i,name){ pairs[i].name=name.trim()||pairs[i].name; ls_set(K.pairs,pairs); renderMembersList(); renderTeamSelPairs(); }
+function deletePair(i){ if(!confirm(`Delete ${pairs[i].name}?`)) return; pairs.splice(i,1); ls_set(K.pairs,pairs); renderPairsList(); renderMembersList(); renderTeamSelPairs(); }
+function togglePairMember(pi,name){
+  const p=pairs[pi];
+  if(p.playerA===name){ p.playerA=null; }
+  else if(p.playerB===name){ p.playerB=null; }
+  else if(!p.playerA){ p.playerA=name; }
+  else if(!p.playerB){ p.playerB=name; }
+  else { showPairsMsg('A pair can only have 2 players!','#FF3D00'); return; }
+  ls_set(K.pairs,pairs); renderPairsList(); renderMembersList(); renderTeamSelPairs();
+}
+function showPairsMsg(t,c){ const el=document.getElementById('pairs-msg'); el.textContent=t; el.style.color=c; setTimeout(()=>el.textContent='',3000); }
+
+// ── MATCH ENTRY ───────────────────────────────
+let matchTeamA=null, matchTeamB=null; // pair ids
+
+function renderTeamSelPairs(){
+  const aDiv=document.getElementById('team-a-pairs');
+  const bDiv=document.getElementById('team-b-pairs');
+  if(!aDiv) return;
+  aDiv.innerHTML=''; bDiv.innerHTML='';
+  if(pairs.length===0){
+    const msg='<span style="font-size:11px;color:var(--dim)">Create pairs first in Squad tab</span>';
+    aDiv.innerHTML=msg; bDiv.innerHTML=msg; return;
+  }
+  pairs.forEach(p=>{
+    const label=`${p.name}${p.playerA&&p.playerB?` (${p.playerA} & ${p.playerB})`:p.playerA?` (${p.playerA})`:p.playerB?` (${p.playerB})`:' (empty)'}`;
+    const btnA=document.createElement('button');
+    btnA.className=`pair-chip${matchTeamA===p.id?' sel-a':''}`;
+    btnA.textContent=label; btnA.onclick=()=>selectMatchTeam('A',p.id);
+    aDiv.appendChild(btnA);
+    const btnB=document.createElement('button');
+    btnB.className=`pair-chip${matchTeamB===p.id?' sel-b':''}`;
+    btnB.textContent=label; btnB.onclick=()=>selectMatchTeam('B',p.id);
+    bDiv.appendChild(btnB);
+  });
+}
+function selectMatchTeam(side,pairId){
+  if(side==='A'){
+    if(matchTeamA===pairId){ matchTeamA=null; } else { if(matchTeamB===pairId) matchTeamB=null; matchTeamA=pairId; }
+  } else {
+    if(matchTeamB===pairId){ matchTeamB=null; } else { if(matchTeamA===pairId) matchTeamA=null; matchTeamB=pairId; }
+  }
+  renderTeamSelPairs();
+}
+
+function saveMatch(){
+  if(!matchTeamA||!matchTeamB){ showMatchMsg('Select one team for each side!','#FF3D00'); return; }
+  if(matchTeamA===matchTeamB){ showMatchMsg('Teams must be different!','#FF3D00'); return; }
+  const sA=parseInt(document.getElementById('score-a').value);
+  const sB=parseInt(document.getElementById('score-b').value);
+  if(isNaN(sA)||isNaN(sB)){ showMatchMsg('Enter both scores!','#FFB300'); return; }
+  const winner=sA>sB?matchTeamA:sB>sA?matchTeamB:'draw';
+  const pA=pairs.find(p=>p.id===matchTeamA);
+  const pB=pairs.find(p=>p.id===matchTeamB);
+  const m={
+    id:'m_'+Date.now(), date:TODAY_STR,
+    weekStr:WEEK_STR, monthStr:MONTH_STR,
+    teamAId:matchTeamA, teamBId:matchTeamB,
+    teamAName:pA?.name||'?', teamBName:pB?.name||'?',
+    playersA:[pA?.playerA,pA?.playerB].filter(Boolean),
+    playersB:[pB?.playerA,pB?.playerB].filter(Boolean),
+    scoreA:sA, scoreB:sB, winnerId:winner, ts:Date.now()
+  };
+  matches.unshift(m); ls_set(K.matches,matches);
+  matchTeamA=null; matchTeamB=null;
+  document.getElementById('score-a').value='';
+  document.getElementById('score-b').value='';
+  renderTeamSelPairs();
+  renderLeaderboard();
+  renderMatchHistory();
+  const wName=winner==='draw'?'Draw':(winner===m.teamAId?m.teamAName:m.teamBName);
+  showMatchMsg(winner==='draw'?`🤝 Draw! (${sA}–${sB})`:`🏆 ${wName} wins! (${sA}–${sB})`,'#00C853');
+}
+function showMatchMsg(t,c){ const el=document.getElementById('match-msg'); el.textContent=t; el.style.color=c; setTimeout(()=>el.textContent='',3500); }
+
+// ── LEADERBOARD ───────────────────────────────
+let lbPeriod='today';
+function setLbPeriod(p){
+  lbPeriod=p;
+  document.querySelectorAll('.lb-period-btn').forEach((b,i)=>{
+    b.classList.toggle('active',['today','week','month','all'][i]===p);
+  });
+  renderLeaderboard();
+}
+
+function filterMatchesByPeriod(period){
+  const now=new Date();
+  return matches.filter(m=>{
+    if(period==='today')  return m.date===TODAY_STR;
+    if(period==='week')   return m.weekStr===WEEK_STR;
+    if(period==='month')  return m.monthStr===MONTH_STR;
+    return true; // all
+  });
+}
+
+function renderLeaderboard(){
+  const filtered=filterMatchesByPeriod(lbPeriod);
+  // tally wins/played per pair id
+  const stats={};
+  pairs.forEach(p=>{ stats[p.id]={name:p.name,players:[p.playerA,p.playerB].filter(Boolean),wins:0,played:0,points:0}; });
+  filtered.forEach(m=>{
+    if(stats[m.teamAId]) stats[m.teamAId].played++;
+    if(stats[m.teamBId]) stats[m.teamBId].played++;
+    if(m.winnerId!=='draw'){
+      if(stats[m.winnerId]) { stats[m.winnerId].wins++; stats[m.winnerId].points+=3; }
+      const loserId=m.winnerId===m.teamAId?m.teamBId:m.teamAId;
+      if(stats[loserId]) stats[loserId].points+=0;
+    } else {
+      if(stats[m.teamAId]) stats[m.teamAId].points+=1;
+      if(stats[m.teamBId]) stats[m.teamBId].points+=1;
+    }
+  });
+  const sorted=Object.values(stats).filter(s=>s.played>0).sort((a,b)=>b.wins-a.wins||b.points-a.points||b.played-a.played);
+  const list=document.getElementById('lb-list'); list.innerHTML='';
+  if(sorted.length===0){ list.innerHTML='<div class="empty-state">No matches in this period yet</div>'; return; }
+  const periodLabel={'today':'Today','week':'This Week','month':'This Month','all':'All Time'}[lbPeriod];
+  sorted.forEach((s,i)=>{
+    const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const wr=s.played?Math.round(s.wins/s.played*100):0;
+    const avatars=s.players.map(n=>`<div class="lb-avatar" style="background:${i===0?'#FFD700':i===1?'#555':i===2?'#7a4520':'var(--line)'};color:${i<3?'#000':'var(--white)'}">${esc((n||'?')[0])}</div>`).join('');
+    const row=document.createElement('div'); row.className='lb-team-row';
+    row.innerHTML=`
+      <div class="lb-rank ${rankClass}">${i+1}</div>
+      <div class="lb-pair-avatars">${avatars}</div>
+      <div class="lb-team-info">
+        <div class="lb-team-name">${esc(s.name)}</div>
+        <div class="lb-team-stats">${s.players.join(' & ')} · ${s.played} matches · ${wr}% win rate</div>
+      </div>
+      <div class="lb-wins"><div class="lb-wins-num">${s.wins}</div><div class="lb-wins-label">WINS</div></div>`;
+    list.appendChild(row);
+  });
+}
+
+function renderMatchHistory(){
+  const list=document.getElementById('match-history-list'); list.innerHTML='';
+  document.getElementById('match-count').textContent=matches.length?`(${matches.length})`:'';
+  if(matches.length===0){ list.innerHTML='<div class="empty-state">No matches yet</div>'; return; }
+  matches.slice(0,30).forEach(m=>{
+    const wName=m.winnerId==='draw'?'Draw':m.winnerId===m.teamAId?m.teamAName:m.teamBName;
+    const el=document.createElement('div'); el.className='match-hist-item';
+    el.innerHTML=`
+      <div class="match-hist-teams">
+        <span style="color:var(--blue)">${esc(m.teamAName)}</span>
+        <span class="mh-score" style="color:var(--blue)">${m.scoreA}</span>
+        <span style="color:var(--dim)">–</span>
+        <span class="mh-score" style="color:var(--red)">${m.scoreB}</span>
+        <span style="color:var(--red)">${esc(m.teamBName)}</span>
+      </div>
+      <div class="mh-date">
+        <span>${m.date}</span>
+        <span class="winner-tag">${m.winnerId==='draw'?'🤝 Draw':`🏆 ${esc(wName)}`}</span>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function shareLeaderboardWA(){
+  const filtered=filterMatchesByPeriod(lbPeriod);
+  const stats={};
+  pairs.forEach(p=>{ stats[p.id]={name:p.name,players:[p.playerA,p.playerB].filter(Boolean),wins:0,played:0}; });
+  filtered.forEach(m=>{
+    if(stats[m.teamAId]) stats[m.teamAId].played++;
+    if(stats[m.teamBId]) stats[m.teamBId].played++;
+    if(m.winnerId!=='draw'&&stats[m.winnerId]) stats[m.winnerId].wins++;
+  });
+  const sorted=Object.values(stats).filter(s=>s.played>0).sort((a,b)=>b.wins-a.wins||b.played-a.played);
+  if(sorted.length===0){ alert('No results to share!'); return; }
+  const medals=['🥇','🥈','🥉'];
+  const periodLabel={'today':'Today','week':'This Week','month':'This Month','all':'All Time'}[lbPeriod];
+  const board=sorted.map((s,i)=>`${medals[i]||`${i+1}.`} *${s.name}* (${s.players.join(' & ')}) — ${s.wins}W / ${s.played} played`).join('\n');
+  const d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const msg=`🏸 *BADMINTON LEADERBOARD* 🏸\n📅 ${d} · _${periodLabel}_\n\n${board}\n\nTotal matches: ${filtered.length}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ── TABS ──────────────────────────────────────
+const TABS=['today','history','perf','members'];
+function switchTab(tab){
+  TABS.forEach((t,i)=>{
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
+    document.getElementById(`page-${t}`).classList.toggle('active',t===tab);
+  });
+  if(tab==='history') renderCalendar();
+  if(tab==='members'){ renderMembersList(); renderPairsList(); }
+  if(tab==='perf'){ renderTeamSelPairs(); renderLeaderboard(); renderMatchHistory(); }
+}
+
+// ── CLOCK (display only, no voting restriction) ──
+function updateClock(){
+  const now=new Date();
+  document.getElementById('live-clock').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const h=now.getHours();
+  // just show contextual status
+  const status=document.getElementById('voting-status');
+  if(h>=19&&h<20){ status.textContent='GAME TIME 🏸'; status.className='vstatus status-game'; }
+  else { status.textContent='OPEN ALL DAY'; status.className='vstatus status-open'; }
+}
+
+// ── MONTHLY CALENDAR ──────────────────────────
+let viewYear=new Date().getFullYear(),viewMonth=new Date().getMonth();
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function changeMonth(dir){ viewMonth+=dir; if(viewMonth>11){viewMonth=0;viewYear++;}if(viewMonth<0){viewMonth=11;viewYear--;} renderCalendar(); }
+function renderCalendar(){
+  document.getElementById('month-label').textContent=`${MN[viewMonth]} ${viewYear}`;
+  const today=new Date(); const days=new Date(viewYear,viewMonth+1,0).getDate(); const firstDow=new Date(viewYear,viewMonth,1).getDay();
+  let gd=0,ti=0,tv=0;
+  for(let d=1;d<=days;d++){ const k=`${viewYear}-${pad(viewMonth+1)}-${pad(d)}`; const v=history[k]?.votes||[]; if(v.length>0){gd++;tv+=v.length;ti+=v.filter(x=>x.vote==='yes'||x.vote==='late').length;} }
+  document.getElementById('ms-games').textContent=gd; document.getElementById('ms-avg').textContent=gd?Math.round(ti/gd):0; document.getElementById('ms-total').textContent=tv;
+  const c=document.getElementById('cal-days'); c.innerHTML='';
+  for(let i=0;i<firstDow;i++){const e=document.createElement('div');e.className='cal-day empty';c.appendChild(e);}
+  for(let d=1;d<=days;d++){
+    const k=`${viewYear}-${pad(viewMonth+1)}-${pad(d)}`; const votes=history[k]?.votes||[];
+    const isToday=viewYear===today.getFullYear()&&viewMonth===today.getMonth()&&d===today.getDate();
+    const yc=votes.filter(v=>v.vote==='yes'||v.vote==='late').length; const mc=votes.filter(v=>v.vote==='maybe').length;
+    const dc=votes.length===0?'dot-empty':yc>0?'dot-yes':mc>0?'dot-maybe':'dot-no';
+    const el=document.createElement('div');
+    el.className=`cal-day ${votes.length>0?'has-game':'no-game'} ${isToday?'today-marker':''}`;
+    el.innerHTML=`<span class="day-num">${d}</span><div class="day-dot ${dc}"></div>`;
+    if(votes.length>0) el.onclick=()=>showDayDetail(k,d);
+    c.appendChild(el);
+  }
+  document.getElementById('day-detail').classList.remove('visible');
+}
+function showDayDetail(key,d){
+  const votes=history[key]?.votes||[]; const panel=document.getElementById('day-detail');
+  document.getElementById('detail-title').textContent=`${MN[viewMonth]} ${d} — ${votes.length} vote(s)`;
+  const list=document.getElementById('detail-list'); list.innerHTML='';
+  if(!votes.length){list.innerHTML='<div style="color:var(--dim);font-size:12px">No votes</div>'; panel.classList.add('visible'); return;}
+  votes.forEach(v=>{
+    const bc={yes:'badge-yes',no:'badge-no',maybe:'badge-maybe',late:'badge-late'}[v.vote];
+    const lb={yes:'✅ In',no:'❌ Out',maybe:'🤔 Maybe',late:'⏰ Late'}[v.vote];
+    const gt=v.type==='guest'?' <span class="tag-guest">GUEST</span>':'';
+    const row=document.createElement('div'); row.className='detail-row';
+    row.innerHTML=`<span>${esc(v.name)}${gt}</span><span class="vote-badge ${bc}">${lb}</span>`;
+    list.appendChild(row);
+  });
+  panel.classList.add('visible');
+}
+
+// ── INIT ──────────────────────────────────────
+initDateLabel();
+render();
+updateClock();
+setInterval(updateClock,1000);
+</script>
+</body>
+</html>
