@@ -224,6 +224,31 @@ header h1 span{color:var(--green)}
 .wa-perf-btn{width:100%;background:#25D366;color:#fff;border:none;border-radius:9px;padding:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:5px}
 .sec-div{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:700;padding:7px 0 5px;border-bottom:1px solid var(--line);margin-bottom:7px}
 
+/* IDENTITY MODAL */
+#identity-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+#identity-modal.hidden{display:none}
+.id-box{background:var(--panel);border-top:2px solid var(--green);border-radius:18px 18px 0 0;padding:22px 18px 34px;width:100%;max-width:480px}
+.id-box h2{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:1px;color:var(--white);margin-bottom:3px}
+.id-box p{font-size:12px;color:var(--dim);margin-bottom:14px;line-height:1.4}
+.id-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;max-height:220px;overflow-y:auto}
+.id-chip{background:var(--court);border:1.5px solid var(--line);border-radius:10px;padding:9px 4px 7px;cursor:pointer;text-align:center;transition:all .15s}
+.id-chip:hover{border-color:var(--green);background:rgba(0,200,83,.08)}
+.id-chip .ic-av{width:30px;height:30px;border-radius:50%;background:var(--line);margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;text-transform:uppercase;color:var(--white)}
+.id-chip .ic-nm{font-size:9px;font-weight:700;color:var(--white);word-break:break-word}
+.id-div{text-align:center;font-size:11px;color:var(--dim);margin:8px 0;position:relative}
+.id-div::before,.id-div::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--line)}
+.id-div::before{left:0}.id-div::after{right:0}
+.id-guest{display:flex;gap:7px}
+.id-guest input{flex:1;background:var(--court);border:1.5px solid var(--line);border-radius:9px;color:var(--white);font-family:'Inter',sans-serif;font-size:14px;padding:9px 11px;outline:none;transition:border-color .2s}
+.id-guest input::placeholder{color:var(--dim)}
+.id-guest input:focus{border-color:var(--green)}
+.id-guest button{background:var(--green);border:none;border-radius:9px;color:#000;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;padding:9px 13px;cursor:pointer}
+/* WHO AM I bar */
+#who-bar{width:100%;background:var(--line);border-bottom:1px solid var(--panel);padding:6px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+#who-bar.hidden{display:none}
+#who-name{font-weight:700;color:var(--green)}
+#who-change{font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;padding:0}
+
 /* LOADING */
 #loading-screen{position:fixed;inset:0;background:var(--court);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
 #loading-screen.hidden{display:none}
@@ -236,6 +261,7 @@ header h1 span{color:var(--green)}
 </head>
 <body>
 
+<!-- Identity Modal placeholder -->
 <!-- Loading -->
 <div id="loading-screen">
   <div class="loading-spinner"></div>
@@ -243,6 +269,27 @@ header h1 span{color:var(--green)}
 </div>
 
 <!-- Sync bar -->
+
+<!-- Identity Modal -->
+<div id="identity-modal" class="hidden">
+  <div class="id-box">
+    <h2>👋 Who are you?</h2>
+    <p>Pick your name so only you can change your own vote</p>
+    <div class="id-grid" id="id-member-grid"></div>
+    <div class="id-div">or join as guest</div>
+    <div class="id-guest">
+      <input type="text" id="id-guest-input" placeholder="Type your name…" maxlength="25" onkeydown="if(event.key==='Enter') confirmGuestIdentity()">
+      <button onclick="confirmGuestIdentity()">Join</button>
+    </div>
+  </div>
+</div>
+
+<!-- Who am I bar -->
+<div id="who-bar" class="hidden">
+  <span>You are: <span id="who-name">—</span></span>
+  <button id="who-change" onclick="showIdentityModal()">Change</button>
+</div>
+
 <div id="sync-bar">
   <div id="sync-dot"></div>
   <span id="sync-text">Live sync active — all votes shared in real time</span>
@@ -451,12 +498,63 @@ const votesCol   = collection(db,`votes_${TODAY}`);
 const pairsCol   = collection(db,'pairs');
 const matchesCol = collection(db,'matches');
 
+
+// ── IDENTITY (who am I on this device) ────────
+let myName = localStorage.getItem('gnv_myname') || null;
+
+function showIdentityModal(){
+  // populate member grid
+  const grid = document.getElementById('id-member-grid');
+  grid.innerHTML = '';
+  if(members.length === 0){
+    grid.innerHTML = '<div style="grid-column:span 3;text-align:center;color:var(--dim);font-size:12px;padding:8px 0">No squad members yet —<br>join as guest below</div>';
+  } else {
+    members.forEach(m => {
+      const chip = document.createElement('div');
+      chip.className = 'id-chip';
+      chip.innerHTML = `<div class="ic-av">${esc(m.name[0])}</div><div class="ic-nm">${esc(m.name)}</div>`;
+      chip.onclick = () => setMyIdentity(m.name, false);
+      grid.appendChild(chip);
+    });
+  }
+  document.getElementById('id-guest-input').value = '';
+  document.getElementById('identity-modal').classList.remove('hidden');
+}
+window.showIdentityModal = showIdentityModal;
+
+function setMyIdentity(name, isGuest){
+  myName = name;
+  localStorage.setItem('gnv_myname', name);
+  document.getElementById('identity-modal').classList.add('hidden');
+  document.getElementById('who-bar').classList.remove('hidden');
+  document.getElementById('who-name').textContent = name;
+  renderRoster();
+}
+
+window.confirmGuestIdentity = function(){
+  const name = document.getElementById('id-guest-input').value.trim();
+  if(!name) return;
+  setMyIdentity(name, true);
+}
+
+function initIdentity(){
+  if(myName){
+    document.getElementById('who-bar').classList.remove('hidden');
+    document.getElementById('who-name').textContent = myName;
+  } else {
+    // show modal after members load (small delay)
+    setTimeout(showIdentityModal, 1200);
+  }
+}
+
 // ── REALTIME LISTENERS ────────────────────────
 function startListeners(){
   // Members
   onSnapshot(membersCol, snap=>{
+    const wasEmpty = members.length === 0;
     members = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.order-b.order||a.name.localeCompare(b.name));
     renderRoster(); renderMembersList(); renderPairsList(); renderTeamSelPairs();
+    if(wasEmpty && members.length > 0 && !myName) showIdentityModal();
   });
   // Today's votes
   onSnapshot(votesCol, snap=>{
@@ -505,7 +603,18 @@ function vc(v){ return {yes:'var(--green)',late:'var(--late)',maybe:'var(--maybe
 
 // ── PICKER ────────────────────────────────────
 let pickerTarget=null;
-function openPicker(name){ pickerTarget=name; document.getElementById('picker-name').textContent=name; document.getElementById('vote-picker').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function openPicker(name){
+  if(!myName){ showIdentityModal(); return; }
+  if(myName.toLowerCase() !== name.toLowerCase()){
+    // show a small toast
+    showToast(`Only ${name} can change their own vote!`);
+    return;
+  }
+  pickerTarget=name;
+  document.getElementById('picker-name').textContent=name;
+  document.getElementById('vote-picker').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
 window.closePicker=function(){ document.getElementById('vote-picker').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); pickerTarget=null; }
 window.memberVote=async function(choice){
   if(!pickerTarget) return;
@@ -523,9 +632,11 @@ window.memberVote=async function(choice){
 
 // ── GUEST ─────────────────────────────────────
 window.guestVote=async function(choice){
+  if(!myName){ showIdentityModal(); return; }
   const input=document.getElementById('guest-input');
   const name=input.value.trim();
   if(!name){ input.focus(); input.style.borderColor='#FF3D00'; setTimeout(()=>input.style.borderColor='',1200); showGuestMsg('Enter guest name!','#FFB300'); return; }
+  if(name.toLowerCase() !== myName.toLowerCase()){ showGuestMsg(`You can only vote as "${myName}"!`,'#FF3D00'); return; }
   if(members.some(m=>m.name.toLowerCase()===name.toLowerCase())){ showGuestMsg(`${name} is in squad — tap their chip!`,'#A78BFA'); return; }
   const existing=votes.find(v=>v.name.toLowerCase()===name.toLowerCase());
   const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -817,6 +928,18 @@ document.getElementById('today-date-lbl').textContent=new Date().toLocaleDateStr
 startListeners();
 updateClock();
 setInterval(updateClock,1000);
+
+
+// ── TOAST ─────────────────────────────────────
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:600;z-index:300;transition:opacity .3s;white-space:nowrap'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.style.opacity='0',2500);
+}
+
+initIdentity();
 
 // Connection status
 window.addEventListener('online',()=>{ const b=document.getElementById('sync-bar'); b.className=''; document.getElementById('sync-text').textContent='Live sync active — all votes shared in real time'; });
