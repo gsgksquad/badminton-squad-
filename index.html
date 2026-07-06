@@ -46,7 +46,7 @@ header{width:100%;background:linear-gradient(135deg,var(--line),var(--panel));bo
 header h1{font-family:'Bebas Neue',cursive;font-size:clamp(30px,8vw,52px);letter-spacing:2px;line-height:1}
 header h1 span{color:var(--green)}
 .kickoff-tag{display:inline-flex;align-items:center;gap:6px;margin-top:7px;background:var(--court);border:1px solid var(--line);border-radius:99px;padding:4px 13px;font-size:11px;font-weight:600;color:var(--dim);flex-wrap:wrap;justify-content:center}
-.kickoff-tag strong{color:var(--white)}
+.kickoff-tag strong{color:var(--green)}
 #live-clock{font-variant-numeric:tabular-nums;color:var(--maybe)}
 /* TABS */
 .tab-bar{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,1fr);margin:11px 0 0;padding:0 13px;gap:5px}
@@ -324,7 +324,7 @@ header h1 span{color:var(--green)}
 <header>
   <div class="eyebrow">Daily Poll · Badminton</div>
   <h1>WHO'S <span>IN</span> TONIGHT?</h1>
-  <div class="kickoff-tag">🏸 Game: <strong>7:00–7:30 PM</strong> &nbsp;|&nbsp; <span id="live-clock"></span></div>
+  <div class="kickoff-tag">🏸 Game: <strong>7:30–9:30 PM</strong> &nbsp;|&nbsp; <span id="live-clock"></span></div>
 </header>
 
 <div class="tab-bar" style="grid-template-columns:repeat(5,1fr)">
@@ -781,7 +781,7 @@ window.shareVoteWA=function(auto){
   var no=v.filter(function(x){return x.vote==='no'});
   function n(arr){return arr.map(function(x){return x.name}).join(', ')||'none yet'}
   var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  var msg='Tonights Badminton Poll\n'+d+'\nGame: 7:30-9:30 PM\n\nIN ('+yes.length+'): '+n(yes)+'\nLATE ('+late.length+'): '+n(late)+'\nMAYBE ('+maybe.length+'): '+n(maybe)+'\nOUT ('+no.length+'): '+n(no)+'\n\n'+window.location.href+(auto?'\n[Auto update]':'');
+  var msg='Tonights Badminton Poll\n'+d+'\nGame: 7:30–9:30 PM\n\nIN ('+yes.length+'): '+n(yes)+'\nLATE ('+late.length+'): '+n(late)+'\nMAYBE ('+maybe.length+'): '+n(maybe)+'\nOUT ('+no.length+'): '+n(no)+'\n\n'+window.location.href+(auto?'\n[Auto update]':'');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 window.confirmReset=async function(){
@@ -1315,11 +1315,11 @@ window.sendAI=async function(){
   var pairsList=pairs.map(function(p){return p.name+' ('+[p.playerA,p.playerB].filter(Boolean).join(' & ')+')'}).join(', ')||'none';
   var membersList=members.map(function(m){return m.name}).join(', ')||'none';
   var recentM=matches.slice(0,3).map(function(m){return m.teamAName+' '+m.scoreA+'-'+m.scoreB+' '+m.teamBName}).join('; ')||'none';
-  var sys='You are Squad Bot for a badminton group. User is '+( myName||'unknown')+'. Playing tonight: '+inP+'. Coming late: '+lateP+'. Squad: '+membersList+'. Pairs: '+pairsList+'. Recent: '+recentM+'. Game 7:30-9:30 PM. Short fun replies with emojis. Only use names from squad.';
+  var sys='You are Squad Bot for a badminton group. User is '+( myName||'unknown')+'. Playing tonight: '+inP+'. Coming late: '+lateP+'. Squad: '+membersList+'. Pairs: '+pairsList+'. Recent: '+recentM+'. Game 7:30–9:30 PM. Short fun replies with emojis. Only use names from squad.';
   try{
     var resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:250,system:sys,messages:aiHistory.slice(-6)})
     });
     var data=await resp.json();
