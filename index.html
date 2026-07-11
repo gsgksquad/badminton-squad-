@@ -740,7 +740,8 @@ window.shareVoteWA=function(auto){
   var totalComing=yes.length+late.length;
   function n(arr){return arr.map(function(x){return x.name}).join(', ')||'none yet'}
   var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  var msg='Badminton Poll Tonight\n'+d+'\nGame: 7:30-9:30 PM\n\nIN ('+yes.length+'): '+n(yes)+'\nLATE ('+late.length+'): '+n(late)+'\nMAYBE ('+maybe.length+'): '+n(maybe)+'\nOUT ('+no.length+'): '+n(no)+'\n\nTotal coming tonight: '+totalComing+'\n\n'+window.location.href+(auto?'\n[Auto update]':'');
+  var e1='\uD83C\uDFF8'; var e2='\uD83D\uDCC5'; var e3='\u2705'; var e4='\u23F0'; var e5='\uD83E\uDD14'; var e6='\u274C'; var e7='\uD83D\uDC65'; var e8='\uD83D\uDC49';
+  var msg=e1+' *TONIGHTS BADMINTON POLL* '+e1+'\n'+e2+' '+d+'\n'+e4+' Game: *7:30-9:30 PM*\n\n'+e3+' *IN ('+yes.length+'):* '+n(yes)+'\n'+e4+' *LATE ('+late.length+'):* '+n(late)+'\n'+e5+' *MAYBE ('+maybe.length+'):* '+n(maybe)+'\n'+e6+' *OUT ('+no.length+'):* '+n(no)+'\n\n'+e7+' *Total coming tonight: '+totalComing+'*\n\n'+e8+' '+window.location.href+(auto?'\n_[Auto update]_':'');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 window.confirmReset=async function(){
@@ -957,7 +958,8 @@ function renderMatchHist(){
 window.shareLbWA=function(){
   var sorted=buildStats(filterM(lbPeriod));
   if(!sorted.length){alert('No results!');return;}
-  var board=sorted.map(function(s,i){var diff=s.pf-s.pa;return (i+1)+'. '+s.name+' ('+s.players.join(' & ')+') '+s.wins+'W/'+s.played+' Pts '+s.pf+'-'+s.pa+' ('+(diff>=0?'+':'')+diff+')'}).join('\n');
+  var lbMedals=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  var board=sorted.map(function(s,i){var diff=s.pf-s.pa;return (lbMedals[i]||(i+1)+'.')+' *'+s.name+'* ('+s.players.join(' & ')+') '+s.wins+'W/'+s.played+' Pts '+s.pf+'-'+s.pa+' ('+(diff>=0?'+':'')+diff+')'}).join('\n');
   var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
   var msg='Badminton Leaderboard\n'+d+'\n\n'+board+'\n\nMatches: '+filterM(lbPeriod).length;
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
