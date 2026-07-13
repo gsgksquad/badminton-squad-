@@ -257,6 +257,80 @@ header h1 span{color:var(--green)}
 #ai-inp::placeholder{color:var(--dim)}
 #ai-send{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:8px;color:#fff;padding:7px 10px;cursor:pointer;font-size:14px}
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:600;z-index:300;transition:opacity .3s;white-space:nowrap;opacity:0;pointer-events:none}
+
+/* CONFETTI */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:10px;top:-10px;opacity:0;animation:confettiFall 1.5s ease-out forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+/* SHUTTLE ANIMATION */
+.shuttle-fly{position:absolute;font-size:22px;animation:shuttleFly 2.5s ease-out forwards;pointer-events:none;z-index:10}
+@keyframes shuttleFly{0%{left:-40px;top:60%;opacity:1;transform:rotate(-30deg)}60%{opacity:1}100%{left:110%;top:30%;opacity:0;transform:rotate(-30deg)}}
+
+/* PAGE TRANSITIONS */
+.page{transition:opacity .3s ease,transform .3s ease}
+.page.active{animation:pageIn .3s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* RANK CHANGE ANIMATION */
+.lb-row{transition:all .4s ease}
+.lb-row.rank-up{animation:rankUp .5s ease}
+@keyframes rankUp{0%{background:rgba(0,200,83,.3);transform:scale(1.02)}100%{background:transparent;transform:scale(1)}}
+
+/* WIN STREAK BADGE */
+.streak-badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:99px;background:linear-gradient(135deg,#FF6B00,#FFB300);color:#fff;margin-left:6px;animation:streakPulse 2s ease-in-out infinite}
+@keyframes streakPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,107,0,0)}}
+
+/* PULSE ON SYNC DOT */
+#sync-dot{animation:syncPulse 1.5s ease-in-out infinite}
+@keyframes syncPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+
+/* DARK/LIGHT MODE */
+body.light-mode{--court:#F0F4FF;--panel:#FFFFFF;--line:#E0E7FF;--white:#1A1A2E;--dim:#6B7280}
+body.light-mode .card{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+body.light-mode header{background:linear-gradient(135deg,#1A1A2E,#16213E)}
+body.light-mode header h1,body.light-mode .eyebrow{color:var(--white)}
+
+/* THEME TOGGLE */
+#theme-btn{position:fixed;top:70px;right:12px;width:36px;height:36px;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--white);font-size:16px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center}
+
+/* RANDOM TEAM PICKER */
+.team-picker-result{background:var(--court);border-radius:var(--radius);padding:14px;margin-top:10px}
+.team-picker-team{margin-bottom:10px}
+.team-picker-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.team-picker-players{display:flex;gap:8px;flex-wrap:wrap}
+.team-player-chip{background:var(--panel);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700;border:1.5px solid var(--line)}
+.pick-btn{width:100%;background:linear-gradient(135deg,var(--blue),#7c3aed);border:none;border-radius:var(--radius);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;animation:none}
+.pick-btn:active{transform:scale(.97)}
+
+/* WEATHER WIDGET */
+#weather-widget{background:linear-gradient(135deg,var(--blue),#0d47a1);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+#weather-info{color:#fff}
+#weather-temp{font-family:'Bebas Neue',cursive;font-size:32px;color:#fff;line-height:1}
+#weather-desc{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+
+/* PLAYER OF WEEK */
+.potw-card{background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:var(--radius);padding:14px;display:flex;align-items:center;gap:12px}
+.potw-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0}
+.potw-info{flex:1}
+.potw-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.potw-name{font-family:'Bebas Neue',cursive;font-size:24px;color:#fff;letter-spacing:1px;line-height:1}
+.potw-stat{font-size:11px;color:rgba(255,255,255,.8);margin-top:2px}
+
+/* HEAD TO HEAD */
+.h2h-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(15,52,96,.5);font-size:12px}
+.h2h-row:last-child{border-bottom:none}
+.h2h-score{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--green)}
+
+/* CELEBRATION */
+#celebration-screen{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#celebration-screen.show{display:flex;animation:fadeIn .4s ease}
+.celebration-trophy{font-size:80px;animation:trophyBounce 1s ease infinite alternate}
+@keyframes trophyBounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-20px) scale(1.1)}}
+.celebration-title{font-family:'Bebas Neue',cursive;font-size:36px;color:#FFD700;letter-spacing:3px;margin:10px 0}
+.celebration-name{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--white);margin-bottom:20px}
+.celebration-close{background:var(--green);border:none;border-radius:99px;color:#000;font-family:'Inter',sans-serif;font-size:14px;font-weight:800;padding:12px 30px;cursor:pointer}
+
 @media(max-width:420px){.page.active{padding:0 10px}.tab-bar{padding:0 10px}}
 </style>
 </head>
@@ -279,6 +353,9 @@ header h1 span{color:var(--green)}
   <span>Voting as: <span id="who-name"></span></span>
   <button id="who-change" onclick="showIdModal()">Switch</button>
 </div>
+<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+<div id="confetti-container" class="confetti-container"></div>
+<div id="celebration-screen"><div class="celebration-trophy">🏆</div><div class="celebration-title">TOURNAMENT WINNER!</div><div class="celebration-name" id="celebration-name"></div><button class="celebration-close" onclick="hideCelebration()">Awesome! 🎉</button></div>
 <div id="sync-bar"><div id="sync-dot"></div><span>Live sync active</span></div>
 <header>
   <div class="eyebrow">Daily Poll · Badminton</div>
@@ -339,6 +416,25 @@ header h1 span{color:var(--green)}
       <div class="auto-info">Auto-shares after every vote</div>
     </div>
   </div>
+  <!-- Random Team Picker -->
+  <div class="card">
+    <div class="card-title">🎲 Random Team Generator</div>
+    <div style="padding:11px 14px 14px">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px">Picks fair teams from players who voted IN tonight</div>
+      <button class="pick-btn" onclick="generateRandomTeams()">🎲 Pick Random Teams</button>
+      <div id="random-teams-result"></div>
+    </div>
+  </div>
+
+  <!-- Weather -->
+  <div id="weather-widget">
+    <div id="weather-info">
+      <div id="weather-desc">Loading weather...</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:2px">Tonight forecast</div>
+    </div>
+    <div id="weather-temp">--°</div>
+  </div>
+
   <button id="reset-btn" onclick="confirmReset()">Reset today votes</button>
 </div>
 
@@ -403,6 +499,22 @@ header h1 span{color:var(--green)}
       <button class="wa-perf-btn" onclick="shareLbWA()">Share Leaderboard</button>
     </div>
   </div>
+  <!-- Player of the Week -->
+  <div id="potw-card" class="potw-card" style="display:none">
+    <div class="potw-avatar" id="potw-avatar"></div>
+    <div class="potw-info">
+      <div class="potw-title">⭐ Player of the Week</div>
+      <div class="potw-name" id="potw-name"></div>
+      <div class="potw-stat" id="potw-stat"></div>
+    </div>
+  </div>
+
+  <!-- Head to Head -->
+  <div class="card">
+    <div class="card-title">⚔️ Head to Head Records</div>
+    <div class="perf-sec" id="h2h-list"><div class="empty-state">No matches yet</div></div>
+  </div>
+
   <div class="card">
     <div class="card-title">Match History <span id="match-count" style="color:var(--green)"></span></div>
     <div class="perf-sec" id="match-hist"><div class="empty-state">No matches yet</div></div>
@@ -623,7 +735,7 @@ function startListeners(){
   });
   onSnapshot(query(matchesCol,orderBy('ts','desc')),function(snap){
     matches=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
-    renderLeaderboard();renderMatchHist();
+    renderLeaderboard();renderMatchHist();renderPoTW();renderH2H();
   });
   onSnapshot(query(tourCol,orderBy('ts','desc')),function(snap){
     tournaments=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
@@ -905,29 +1017,7 @@ function buildStats(fm){
   });
   return Object.values(stats).filter(function(s){return s.played>0}).sort(function(a,b){var w=b.wins-a.wins;if(w) return w;var d=(b.pf-b.pa)-(a.pf-a.pa);if(d) return d;return b.pf-a.pf;});
 }
-function renderLeaderboard(){
-  var sorted=buildStats(filterM(lbPeriod));
-  var list=document.getElementById('lb-list');list.innerHTML='';
-  if(!sorted.length){list.appendChild(el('div','empty-state','No matches in this period'));return;}
-  sorted.forEach(function(s,i){
-    var rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    var diff=s.pf-s.pa;var diffStr=(diff>=0?'+':'')+diff;
-    var row=el('div','lb-row');
-    var rank=el('div','lb-rank '+rc);rank.textContent=i+1;
-    var avs=el('div','lb-avs');
-    s.players.forEach(function(n){var a=el('div','lb-av');a.textContent=(n||'?')[0];avs.appendChild(a)});
-    var info=el('div','lb-info');
-    var tn=el('div','lb-team-name');tn.textContent=s.name;
-    var ts=el('div','lb-stats');ts.textContent=s.players.join(' & ')+' - '+s.played+'P '+s.wins+'W Pts '+s.pf+'-'+s.pa+' ('+diffStr+')';
-    info.appendChild(tn);info.appendChild(ts);
-    var wins=el('div','lb-wins');
-    var wn=el('div','lb-wins-num');wn.textContent=s.wins;
-    var wl=el('div','lb-wins-lbl');wl.textContent='WINS';
-    wins.appendChild(wn);wins.appendChild(wl);
-    row.appendChild(rank);row.appendChild(avs);row.appendChild(info);row.appendChild(wins);
-    list.appendChild(row);
-  });
-}
+// renderLeaderboard moved to enhanced version above
 function renderMatchHist(){
   var list=document.getElementById('match-hist');list.innerHTML='';
   document.getElementById('match-count').textContent=matches.length?'('+matches.length+')':'';
@@ -1309,7 +1399,7 @@ window.switchTab=function(tab){
     document.getElementById('page-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='history') renderCalendar();
-  if(tab==='perf'){renderTeamSel();renderLeaderboard();renderMatchHist();}
+  if(tab==='perf'){renderTeamSel();renderLeaderboard();renderMatchHist();renderPoTW();renderH2H();}
   if(tab==='members'){renderMembersList();renderPairsList();}
   if(tab==='tour') renderTourList();
 }
@@ -1370,11 +1460,111 @@ function showDayDetail(v,d){
   document.getElementById('day-detail').classList.add('visible');
 }
 
-// INIT
-document.getElementById('today-lbl').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-startListeners();initIdentity();updateClock();setInterval(updateClock,1000);
-window.addEventListener('online',function(){document.getElementById('sync-bar').style.background='rgba(0,200,83,.08)'});
-window.addEventListener('offline',function(){document.getElementById('sync-bar').style.background='rgba(255,61,0,.08)'});
-</script>
-</body>
-</html>
+
+// ══════════════════════════════════════════════
+// VISUAL: CONFETTI
+// ══════════════════════════════════════════════
+function launchConfetti(){
+  var container=document.getElementById('confetti-container');
+  var colors=['#00C853','#FFB300','#2196F3','#FF3D00','#A78BFA','#FFD700'];
+  for(var i=0;i<60;i++){
+    (function(i){
+      setTimeout(function(){
+        var piece=document.createElement('div');
+        piece.className='confetti-piece';
+        piece.style.left=Math.random()*100+'%';
+        piece.style.background=colors[Math.floor(Math.random()*colors.length)];
+        piece.style.borderRadius=Math.random()>0.5?'50%':'2px';
+        piece.style.width=(6+Math.random()*8)+'px';
+        piece.style.height=(6+Math.random()*8)+'px';
+        piece.style.animationDuration=(1+Math.random()*1.5)+'s';
+        piece.style.animationDelay=(Math.random()*0.5)+'s';
+        container.appendChild(piece);
+        setTimeout(function(){if(piece.parentNode) piece.parentNode.removeChild(piece)},3000);
+      },i*30);
+    })(i);
+  }
+}
+
+// ══════════════════════════════════════════════
+// VISUAL: SHUTTLE FLY ANIMATION
+// ══════════════════════════════════════════════
+function flyShuttle(){
+  var shuttle=document.createElement('div');
+  shuttle.className='shuttle-fly';
+  shuttle.textContent='🏸';
+  document.body.appendChild(shuttle);
+  setTimeout(function(){if(shuttle.parentNode) shuttle.parentNode.removeChild(shuttle)},2600);
+}
+
+// ══════════════════════════════════════════════
+// VISUAL: THEME TOGGLE
+// ══════════════════════════════════════════════
+var isDark=true;
+window.toggleTheme=function(){
+  isDark=!isDark;
+  document.body.classList.toggle('light-mode',!isDark);
+  document.getElementById('theme-btn').textContent=isDark?'🌙':'☀️';
+  localStorage.setItem('gnv_theme',isDark?'dark':'light');
+}
+function initTheme(){
+  var saved=localStorage.getItem('gnv_theme');
+  if(saved==='light'){isDark=false;document.body.classList.add('light-mode');document.getElementById('theme-btn').textContent='☀️';}
+}
+
+// ══════════════════════════════════════════════
+// VISUAL: CELEBRATION SCREEN
+// ══════════════════════════════════════════════
+function showCelebration(name){
+  document.getElementById('celebration-name').textContent=name;
+  document.getElementById('celebration-screen').classList.add('show');
+  launchConfetti();
+}
+window.hideCelebration=function(){
+  document.getElementById('celebration-screen').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════
+// SMART: RANDOM TEAM GENERATOR
+// ══════════════════════════════════════════════
+window.generateRandomTeams=function(){
+  var inPlayers=votes.filter(function(v){return v.vote==='yes'||v.vote==='late'}).map(function(v){return v.name});
+  var result=document.getElementById('random-teams-result');
+  if(inPlayers.length<2){
+    result.innerHTML='';
+    var msg=document.createElement('div');msg.style.cssText='color:var(--red);font-size:12px;text-align:center;margin-top:8px';
+    msg.textContent='Need at least 2 players voted IN!';result.appendChild(msg);return;
+  }
+  // Shuffle
+  var shuffled=[].concat(inPlayers).sort(function(){return Math.random()-0.5});
+  var half=Math.ceil(shuffled.length/2);
+  var teamA=shuffled.slice(0,half);
+  var teamB=shuffled.slice(half);
+  flyShuttle();
+  result.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='team-picker-result';
+  function makeTeam(label,color,players){
+    var div=document.createElement('div');div.className='team-picker-team';
+    var lbl=document.createElement('div');lbl.className='team-picker-label';lbl.style.color=color;lbl.textContent=label+' ('+players.length+')';
+    var chips=document.createElement('div');chips.className='team-picker-players';
+    players.forEach(function(p){var c=document.createElement('div');c.className='team-player-chip';c.style.borderColor=color;c.style.color=color;c.textContent=p;chips.appendChild(c)});
+    div.appendChild(lbl);div.appendChild(chips);return div;
+  }
+  wrap.appendChild(makeTeam('Team A','var(--blue)',teamA));
+  wrap.appendChild(makeTeam('Team B','var(--red)',teamB));
+  var reshuffleBtn=document.createElement('button');reshuffleBtn.className='pick-btn';reshuffleBtn.style.marginTop='8px';reshuffleBtn.style.padding='8px';reshuffleBtn.style.fontSize='12px';
+  reshuffleBtn.innerHTML='🔀 Reshuffle';reshuffleBtn.onclick=window.generateRandomTeams;
+  wrap.appendChild(reshuffleBtn);
+  result.appendChild(wrap);
+}
+
+// ══════════════════════════════════════════════
+// SMART: WEATHER WIDGET
+// ══════════════════════════════════════════════
+async function loadWeather(){
+  try{
+    var resp=await fetch('https://api.open-meteo.com/v1/forecast?latitude=17.38&longitude=78.49&current=temperature_2m,weathercode&timezone=Asia/Kolkata');
+    var data=await resp.json();
+    var temp=Math.round(data.current.temperature_2m);
+    var code=data.current.weathercode;
+    var desc=code===0?'Clear sky':code<=3?'Partly cloudy':code<=48?'Foggy':code<=57?'Drizzle':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Ra
