@@ -247,8 +247,8 @@ header h1 span{color:var(--green)}
 .confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confettiFall 1.8s ease-out forwards}
 @keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
 /* SHUTTLE */
-.shuttle-fly{position:fixed;font-size:24px;top:40%;left:-40px;animation:shuttleFly 2s ease-out forwards;pointer-events:none;z-index:400}
-@keyframes shuttleFly{0%{left:-40px;opacity:1;transform:rotate(-20deg)}70%{opacity:1}100%{left:110%;opacity:0;transform:rotate(-20deg)}}
+.shuttle-fly{position:fixed;font-size:40px;top:35%;left:-60px;animation:shuttleFly 2.5s ease-out forwards;pointer-events:none;z-index:9999;text-shadow:0 0 20px rgba(0,200,83,.8)}
+@keyframes shuttleFly{0%{left:-60px;opacity:1;transform:rotate(-20deg) scale(1)}50%{opacity:1;transform:rotate(-20deg) scale(1.2)}100%{left:110%;opacity:0;transform:rotate(-20deg) scale(1)}}
 /* AI BOT */
 #ai-fab{position:fixed;bottom:20px;right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;cursor:pointer;z-index:150;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(99,102,241,.5);font-size:22px}
 #ai-panel{position:fixed;bottom:82px;right:16px;width:300px;background:var(--panel);border:1px solid var(--line);border-radius:16px;z-index:150;display:none;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.5);overflow:hidden;max-height:420px}
@@ -273,7 +273,7 @@ header h1 span{color:var(--green)}
 #ai-send{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:8px;color:#fff;padding:7px 10px;cursor:pointer;font-size:14px}
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 18px;border-radius:99px;font-size:12px;font-weight:600;z-index:300;transition:opacity .3s;white-space:nowrap;opacity:0;pointer-events:none}
 /* THEME */
-#theme-btn{position:fixed;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--white);font-size:16px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center}
+#theme-btn{position:fixed;top:50px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--white);font-size:14px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 body.light-mode{--court:#F0F4FF;--panel:#FFFFFF;--line:#E0E7FF;--white:#1A1A2E;--dim:#6B7280}
 body.light-mode .card{box-shadow:0 2px 12px rgba(0,0,0,.08)}
 #theme-btn{background:var(--panel);color:var(--white)}
@@ -748,7 +748,8 @@ window.shareVoteWA=function(auto){
   var totalComing=yes.length+late.length;
   function n(arr){return arr.map(function(x){return x.name}).join(', ')||'none yet'}
   var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  var msg='Badminton Poll Tonight\n'+d+'\nGame: 7:30-9:30 PM\n\nIN ('+yes.length+'): '+n(yes)+'\nLATE ('+late.length+'): '+n(late)+'\nMAYBE ('+maybe.length+'): '+n(maybe)+'\nOUT ('+no.length+'): '+n(no)+'\n\nTotal coming tonight: '+totalComing+'\n\n'+window.location.href+(auto?'\n[Auto update]':'');
+  var e1=String.fromCodePoint(127992),e2=String.fromCodePoint(128197),e3=String.fromCodePoint(9989),e4=String.fromCodePoint(9200),e5=String.fromCodePoint(129300),e6=String.fromCodePoint(10060),e7=String.fromCodePoint(128101),e8=String.fromCodePoint(128073);
+  var msg=e1+' *TONIGHTS BADMINTON POLL* '+e1+'\n'+e2+' '+d+'\n'+e4+' Game: *7:30-9:30 PM*\n\n'+e3+' *IN ('+yes.length+'):* '+n(yes)+'\n'+e4+' *LATE ('+late.length+'):* '+n(late)+'\n'+e5+' *MAYBE ('+maybe.length+'):* '+n(maybe)+'\n'+e6+' *OUT ('+no.length+'):* '+n(no)+'\n\n'+e7+' *Total coming tonight: '+totalComing+'*\n\n'+e8+' '+window.location.href+(auto?'\n_[Auto update]_':'');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 window.confirmReset=async function(){if(!confirm('Clear today votes?')) return;for(var i=0;i<votes.length;i++) await deleteDoc(doc(db,'votes_'+TODAY,votes[i].id));}
