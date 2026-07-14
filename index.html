@@ -801,6 +801,7 @@ window.memberVote=async function(choice){
     else await addDoc(votesCol,data);
   }
   closePicker();
+  if(choice==='yes' && typeof launchConfetti === 'function') setTimeout(launchConfetti,200);
 }
 
 // GUEST
@@ -996,6 +997,7 @@ window.saveMatch=async function(){
   document.getElementById('score-a').value='';document.getElementById('score-b').value='';
   document.getElementById('score-hint').textContent='';renderTeamSel();
   showMMsg(winner==='draw'?'Draw! ('+sA+'-'+sB+')':'Win! ('+sA+'-'+sB+')','#00C853');
+  if(winner!=='draw' && typeof launchConfetti === 'function'){launchConfetti();flyShuttle();}
 }
 function showMMsg(t,c){var e=document.getElementById('match-msg');e.textContent=t;e.style.color=c;setTimeout(function(){e.textContent=''},3500)}
 
@@ -1565,6 +1567,4 @@ async function loadWeather(){
   try{
     var resp=await fetch('https://api.open-meteo.com/v1/forecast?latitude=17.38&longitude=78.49&current=temperature_2m,weathercode&timezone=Asia/Kolkata');
     var data=await resp.json();
-    var temp=Math.round(data.current.temperature_2m);
-    var code=data.current.weathercode;
-    var desc=code===0?'Clear sky':code<=3?'Partly cloudy':code<=48?'Foggy':code<=57?'Drizzle':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Ra
+    var temp=Math.round(data.current.temperatu
