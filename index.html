@@ -1531,7 +1531,7 @@ window.hideCelebration=function(){
 // ══════════════════════════════════════════════
 window.generateRandomTeams=function(){
   var inPlayers=votes.filter(function(v){return v.vote==='yes'||v.vote==='late'}).map(function(v){return v.name});
-  var result=document.getElementById('random-teams-result');
+  var result=document.getElementById('random-teams-result');if(!result) return;
   if(inPlayers.length<2){
     result.innerHTML='';
     var msg=document.createElement('div');msg.style.cssText='color:var(--red);font-size:12px;text-align:center;margin-top:8px';
@@ -1567,4 +1567,4 @@ async function loadWeather(){
   try{
     var resp=await fetch('https://api.open-meteo.com/v1/forecast?latitude=17.38&longitude=78.49&current=temperature_2m,weathercode&timezone=Asia/Kolkata');
     var data=await resp.json();
-    var temp=Math.round(data.current.temperatu
+    var temp=Math.round(dat
