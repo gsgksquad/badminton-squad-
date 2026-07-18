@@ -40,8 +40,8 @@ body{background:var(--court);color:var(--white);font-family:'Inter',sans-serif;m
 #sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 header{width:100%;background:linear-gradient(135deg,var(--line),var(--panel));border-bottom:3px solid var(--green);padding:14px 24px 12px;text-align:center}
-.eyebrow{font-family:cursive;font-size:12px;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:3px;font-style:italic}
-header h1{font-family:cursive;font-size:clamp(28px,7vw,48px);letter-spacing:1px;line-height:1.1;font-style:italic}
+.eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:3px}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,8vw,52px);letter-spacing:2px;line-height:1;font-style:normal}
 header h1 span{color:var(--green)}
 .kickoff-tag{display:inline-flex;align-items:center;gap:6px;margin-top:7px;background:var(--court);border:1px solid var(--line);border-radius:99px;padding:4px 13px;font-size:11px;font-weight:600;color:var(--dim);flex-wrap:wrap;justify-content:center}
 .kickoff-tag strong{color:var(--green)}
@@ -694,7 +694,15 @@ function initIdentity(){if(myName){document.getElementById('who-bar').classList.
 // LISTENERS
 function startListeners(){
   onSnapshot(membersCol,function(snap){members=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return a.name.localeCompare(b.name)});renderRoster();renderMembersList();renderPairsList();renderTeamSel();renderTourTeamPicker();if(!myName&&members.length>0) window.showIdModal();});
-  onSnapshot(votesCol,function(snap){votes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderRoster();renderScoreboard();var c=votes.filter(function(v){return v.type!=='system'}).length;if(c>0) setTimeout(function(){shareVoteWA(true)},800);});
+  var _votesInitialLoad=true;
+onSnapshot(votesCol,function(snap){
+  var prev=votes.length;
+  votes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+  renderRoster();renderScoreboard();
+  if(_votesInitialLoad){_votesInitialLoad=false;return;}
+  var c=votes.filter(function(v){return v.type!=='system'}).length;
+  if(c>prev) setTimeout(function(){shareVoteWA(true)},800);
+});
   onSnapshot(pairsCol,function(snap){pairs=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return a.name.localeCompare(b.name)});renderPairsList();renderMembersList();renderTeamSel();renderTourTeamPicker();});
   onSnapshot(query(matchesCol,orderBy('ts','desc')),function(snap){matches=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderLeaderboard();renderMatchHist();renderH2H();renderPoTW();});
   onSnapshot(query(tourCol,orderBy('ts','desc')),function(snap){tournaments=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderTourList();if(activeTourId){var t=tournaments.find(function(x){return x.id===activeTourId});if(t) renderPointsTable(t);}});
