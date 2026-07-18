@@ -749,7 +749,8 @@ window.shareVoteWA=function(auto){
   var totalComing=yes.length+late.length;
   function n(arr){return arr.map(function(x){return x.name}).join(', ')||'none yet'}
   var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
-  var msg='Badminton Poll Tonight\n'+d+'\nGame: 7:30-9:30 PM\n\nIN ('+yes.length+'): '+n(yes)+'\nLATE ('+late.length+'): '+n(late)+'\nMAYBE ('+maybe.length+'): '+n(maybe)+'\nOUT ('+no.length+'): '+n(no)+'\n\nTotal coming tonight: '+totalComing+'\n\n'+window.location.href+(auto?'\n[Auto update]':'');
+  var e1=String.fromCodePoint(127992),e2=String.fromCodePoint(128197),e3=String.fromCodePoint(9989),e4=String.fromCodePoint(9200),e5=String.fromCodePoint(129300),e6=String.fromCodePoint(10060),e7=String.fromCodePoint(128101),e8=String.fromCodePoint(128073);
+  var msg=e1+' *TONIGHTS BADMINTON POLL* '+e1+'\n'+e2+' '+d+'\n'+e4+' Game: *7:30-9:30 PM*\n\n'+e3+' *IN ('+yes.length+'):* '+n(yes)+'\n'+e4+' *LATE ('+late.length+'):* '+n(late)+'\n'+e5+' *MAYBE ('+maybe.length+'):* '+n(maybe)+'\n'+e6+' *OUT ('+no.length+'):* '+n(no)+'\n\n'+e7+' *Total coming tonight: '+totalComing+'*\n\n'+e8+' '+window.location.href+(auto?'\n_[Auto update]_':'');
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 window.confirmReset=async function(){if(!confirm('Clear today votes?')) return;for(var i=0;i<votes.length;i++) await deleteDoc(doc(db,'votes_'+TODAY,votes[i].id));}
