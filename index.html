@@ -675,7 +675,8 @@ function initIdentity(){if(myName){document.getElementById('who-bar').classList.
 // LISTENERS
 function startListeners(){
   onSnapshot(membersCol,function(snap){members=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return a.name.localeCompare(b.name)});renderRoster();renderMembersList();renderPairsList();renderTeamSel();renderTourTeamPicker();if(!myName&&members.length>0) window.showIdModal();});
-  onSnapshot(votesCol,function(snap){votes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderRoster();renderScoreboard();var c=votes.filter(function(v){return v.type!=='system'}).length;if(c>0) setTimeout(function(){shareVoteWA(true)},800);});
+  var _firstLoad=true;
+onSnapshot(votesCol,function(snap){var prev=votes.length;votes=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderRoster();renderScoreboard();if(_firstLoad){_firstLoad=false;return;}if(votes.length>prev) setTimeout(function(){shareVoteWA(true)},800);});
   onSnapshot(pairsCol,function(snap){pairs=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return a.name.localeCompare(b.name)});renderPairsList();renderMembersList();renderTeamSel();renderTourTeamPicker();});
   onSnapshot(query(matchesCol,orderBy('ts','desc')),function(snap){matches=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderLeaderboard();renderMatchHist();renderH2H();renderPoTW();});
   onSnapshot(query(tourCol,orderBy('ts','desc')),function(snap){tournaments=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});renderTourList();if(activeTourId){var t=tournaments.find(function(x){return x.id===activeTourId});if(t) renderPointsTable(t);}});
