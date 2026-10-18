@@ -242,20 +242,6 @@ header h1 span{color:var(--green)}
 .team-picker-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
 .team-picker-players{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .team-player-chip{background:var(--panel);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:700;border:1.5px solid var(--line)}
-/* TOURNAMENT STAGES */
-.stage-body{padding:11px 14px 14px}
-.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px}
-.step{text-align:center;font-size:9px;font-weight:800;padding:7px 2px;border-radius:8px;background:var(--court);border:1px solid var(--line);color:var(--dim)}
-.step.done{color:var(--green);border-color:var(--green)}
-.step.cur{background:var(--green);border-color:var(--green);color:#000}
-.stage-note{font-size:11px;color:var(--dim);line-height:1.5;margin-top:4px}
-.fx-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(15,52,96,.5);font-size:12px;font-weight:700}
-.fx-lbl{color:var(--maybe);font-size:10px;width:34px;flex-shrink:0}
-.fx-teams{flex:1}
-.fx-score{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--green)}
-.champ-wrap{background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:var(--radius);padding:16px;text-align:center;color:#fff}
-.champ-wrap .cn{font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:1px}
-.champ-wrap .cp{font-size:11px;opacity:.9}
 /* CONFETTI */
 .confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;overflow:hidden}
 .confetti-piece{position:absolute;width:10px;height:10px;top:-10px;animation:confettiFall 1.8s ease-out forwards}
@@ -297,6 +283,19 @@ body.light-mode .card{box-shadow:0 2px 12px rgba(0,0,0,.08)}
 .weather-desc{font-size:13px;font-weight:600}
 .weather-sub{font-size:10px;color:rgba(255,255,255,.7);margin-top:3px}
 .weather-temp{font-family:'Bebas Neue',cursive;font-size:36px;color:#fff;line-height:1}
+.stage-body{padding:11px 14px 14px}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px}
+.step{text-align:center;font-size:9px;font-weight:800;padding:7px 2px;border-radius:8px;background:var(--court);border:1px solid var(--line);color:var(--dim)}
+.step.done{color:var(--green);border-color:var(--green)}
+.step.cur{background:var(--green);border-color:var(--green);color:#000}
+.stage-note{font-size:11px;color:var(--dim);line-height:1.5;margin-top:4px}
+.fx-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(15,52,96,.5);font-size:12px;font-weight:700}
+.fx-lbl{color:var(--maybe);font-size:10px;width:34px;flex-shrink:0}
+.fx-teams{flex:1}
+.fx-score{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--green)}
+.champ-wrap{background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:var(--radius);padding:16px;text-align:center;color:#fff}
+.champ-wrap .cn{font-family:'Bebas Neue',cursive;font-size:30px;letter-spacing:1px}
+.champ-wrap .cp{font-size:11px;opacity:.9}
 @media(max-width:420px){.page.active{padding:0 10px}.tab-bar{padding:0 10px}}
 </style>
 <!-- Google Analytics -->
@@ -490,22 +489,17 @@ body.light-mode .card{box-shadow:0 2px 12px rgba(0,0,0,.08)}
     </div>
     <div style="padding:10px 14px 12px"><div id="tour-list" class="empty-state">No tournaments yet</div></div>
   </div>
-  <div id="tour-active" style="display:none;flex-direction:column;gap:11px">
+  <div id="tour-active" style="display:none;flex-direction:column;gap:11px"><div class="card"><div class="card-title">Tournament Stages</div><div id="tour-progress"></div></div>
     <div class="card">
-      <div class="card-title">Tournament Stages</div>
-      <div id="tour-progress"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">League Table - <span id="tour-active-name" style="color:var(--green)"></span>
+      <div class="card-title">Points Table - <span id="tour-active-name" style="color:var(--green)"></span>
         <button class="tour-close-btn" onclick="closeTournament()">Close</button>
       </div>
       <div id="points-table"></div>
     </div>
     <div class="card">
-      <div class="card-title" id="tour-add-title">Add League Match</div>
+      <div class="card-title" id="tour-add-title">Add Match</div>
       <div class="perf-sec">
-        <div id="tour-fixture-pick"></div>
-        <div class="team-sel" id="tour-team-sel">
+        <div id="tour-fixture-pick"></div><div class="team-sel" id="tour-team-sel">
           <div class="team-box"><h5 class="la">Team A</h5><div id="tour-team-a"></div></div>
           <div class="team-box"><h5 class="lb">Team B</h5><div id="tour-team-b"></div></div>
         </div>
@@ -610,7 +604,7 @@ var members=[],votes=[],pairs=[],matches=[],tournaments=[],tourMatches=[];
 var myName=localStorage.getItem('gnv_myname')||null;
 var activeTourId=null,tourTeamA=null,tourTeamB=null,tourPickedPairs=[];
 var aiOpen=false,aiGreeted=false;
-window._mTeamA=null;window._mTeamB=null;window._editTourMatchId=null;window._tourSlot=null;window._tourUnsub=null;
+window._mTeamA=null;window._mTeamB=null;window._editTourMatchId=null;
 const membersCol=collection(db,'members'),votesCol=collection(db,'votes_'+TODAY),pairsCol=collection(db,'pairs'),matchesCol=collection(db,'matches'),tourCol=collection(db,'tournaments');
 
 // CONFETTI
@@ -944,7 +938,7 @@ window.shareLbWA=function(){
 // TOURNAMENT
 function leagueMatches(){return tourMatches.filter(function(m){return !m.stage||m.stage==='league'})}
 function curTour(){return tournaments.find(function(x){return x.id===activeTourId})}
-function tn(t,id){var x=(t.teams||[]).find(function(y){return y.id===id});return x?x.name:'?'}
+function tName(t,id){var x=(t.teams||[]).find(function(y){return y.id===id});return x?x.name:'?'}
 function koMatch(slot){return tourMatches.find(function(m){return m.stage===slot})}
 function winOf(m){return m&&m.winnerId!=='draw'?m.winnerId:null}
 function canModTour(m){var t=curTour();if(!t) return true;var st=t.stage||'league',ms=m.stage||'league';if(ms!=='league'&&ms!=='final') ms='semi';return ms===st}
@@ -954,9 +948,9 @@ function buildTourTable(t){
   leagueMatches().forEach(function(m){var a=s[m.teamAId],b=s[m.teamBId];if(a){a.pf+=m.scoreA||0;a.pa+=m.scoreB||0}if(b){b.pf+=m.scoreB||0;b.pa+=m.scoreA||0}if(m.winnerId==='draw'){if(a)a.pts++;if(b)b.pts++}else if(s[m.winnerId]) s[m.winnerId].pts+=2});
   return Object.values(s).sort(function(a,b){return b.pts-a.pts||(b.pf-b.pa)-(a.pf-a.pa)||b.pf-a.pf});
 }
-function bracketText(t){var s='';[['semi1','SF1'],['semi2','SF2'],['final','FINAL']].forEach(function(x){var m=koMatch(x[0]);if(m) s+='\n'+x[1]+': '+m.teamAName+' '+m.scoreA+'-'+m.scoreB+' '+m.teamBName});if(t.champion) s+='\n\nCHAMPION: '+tn(t,t.champion);return s?'\n\nKnockouts:'+s:''}
+function bracketText(t){var s='';[['semi1','SF1'],['semi2','SF2'],['final','FINAL']].forEach(function(x){var m=koMatch(x[0]);if(m) s+='\n'+x[1]+': '+m.teamAName+' '+m.scoreA+'-'+m.scoreB+' '+m.teamBName});if(t.champion) s+='\n\nCHAMPION: '+tName(t,t.champion);return s?'\n\nKnockouts:'+s:''}
 async function clearKo(slots){for(var i=0;i<tourMatches.length;i++){if(slots.indexOf(tourMatches[i].stage)>=0) await deleteDoc(doc(db,'tour_matches_'+activeTourId,tourMatches[i].id))}}
-async function setStage(data){tourTeamA=null;tourTeamB=null;window._tourSlot=null;window._editTourMatchId=null;document.getElementById('tour-score-a').value='';document.getElementById('tour-score-b').value='';document.getElementById('tour-score-hint').textContent='';var btn=document.getElementById('tour-save-btn');if(btn){btn.textContent='Save Match';btn.style.background='var(--green)';}await setDoc(doc(db,'tournaments',activeTourId),data,{merge:true})}
+async function setStage(data){tourTeamA=null;tourTeamB=null;window._tourSlot=null;window._editTourMatchId=null;document.getElementById('tour-score-a').value='';document.getElementById('tour-score-b').value='';await setDoc(doc(db,'tournaments',activeTourId),data,{merge:true})}
 window.startKnockouts=async function(){
   var t=curTour(),tb=buildTourTable(t);
   if(!leagueMatches().length){showToast('Play league matches first');return}
@@ -987,18 +981,18 @@ function renderTourProgress(t){
   var sp=el('div','stepper');
   ['League','Semis','Final','Champion'].forEach(function(l,i){sp.appendChild(el('div','step'+(i<cur?' done':i===cur?' cur':''),(i<cur?'鉁� ':'')+l))});
   var body=el('div','stage-body');body.appendChild(sp);
-  function fx(label,a,b,slot){var m=koMatch(slot),w=winOf(m),r=el('div','fx-row');r.appendChild(el('span','fx-lbl',label));r.appendChild(el('span','fx-teams',tn(t,a)+' vs '+tn(t,b)+(w?'  鈫�  '+tn(t,w):'')));r.appendChild(el('span','fx-score',m?(m.teamAId===a?m.scoreA+'-'+m.scoreB:m.scoreB+'-'+m.scoreA):'TBD'));body.appendChild(r)}
-  function btn(txt,fn){var b=mk('button',{class:'pick-btn'},txt);b.style.marginTop='10px';b.onclick=fn;body.appendChild(b)}
+  function fx(label,a,b,slot){var m=koMatch(slot),w=winOf(m),r=el('div','fx-row');r.appendChild(el('span','fx-lbl',label));r.appendChild(el('span','fx-teams',tName(t,a)+' vs '+tName(t,b)+(w?'  鈫�  '+tName(t,w):'')));r.appendChild(el('span','fx-score',m?(m.teamAId===a?m.scoreA+'-'+m.scoreB:m.scoreB+'-'+m.scoreA):'TBD'));body.appendChild(r)}
+  function sbtn(txt,fn){var b=mk('button',{class:'pick-btn'},txt);b.style.marginTop='10px';b.onclick=fn;body.appendChild(b)}
   if(st==='league'){
     var tb=buildTourTable(t);
     body.appendChild(el('div','stage-note',tb.length>=4?'Play league matches. Top 4 go to semifinals: 1st v 4th, 2nd v 3rd.':'Play league matches. Top 2 go to the final.'));
-    btn(tb.length>=4?'Start Semifinals (Top 4)':'Go to Final (Top 2)',window.startKnockouts);
+    sbtn(tb.length>=4?'Start Semifinals (Top 4)':'Go to Final (Top 2)',window.startKnockouts);
   }else if(st==='semi'){
     (t.semis||[]).forEach(function(s,i){fx('SF'+(i+1),s.a,s.b,'semi'+(i+1))});
-    btn('Start Final',window.startFinal);
+    sbtn('Start Final',window.startFinal);
   }else if(st==='final'){
     fx('FINAL',t.finalists[0],t.finalists[1],'final');
-    btn('Crown Champion 馃弳',window.crownChampion);
+    sbtn('Crown Champion 馃弳',window.crownChampion);
   }else{
     var ct=(t.teams||[]).find(function(x){return x.id===t.champion});
     var cw=el('div','champ-wrap');cw.appendChild(el('div','cp','馃弳 TOURNAMENT CHAMPIONS'));cw.appendChild(el('div','cn',ct?ct.name:'?'));cw.appendChild(el('div','cp',ct?(ct.players||[]).join(' & '):''));body.appendChild(cw);
@@ -1011,7 +1005,7 @@ function renderTourList(){
   if(!tournaments.length){c.appendChild(el('div','empty-state','No tournaments yet'));return;}
   tournaments.forEach(function(t){
     var item=el('div','tour-list-item'),left=el('div');
-    var tnm=el('div','tour-item-name');tnm.textContent=t.name;var tm=el('div','tour-item-meta');tm.textContent=(t.teams||[]).length+' teams - '+(t.matchCount||0)+' matches'+(t.champion?' - 馃弳 '+tn(t,t.champion):'');left.appendChild(tnm);left.appendChild(tm);
+    var tn=el('div','tour-item-name');tn.textContent=t.name;var tm=el('div','tour-item-meta');tm.textContent=(t.teams||[]).length+' teams - '+(t.matchCount||0)+' matches'+(t.champion?' - 馃弳 '+tName(t,t.champion):'');left.appendChild(tn);left.appendChild(tm);
     var right=el('div');right.style.display='flex';right.style.gap='5px';
     var ob=mk('button',{class:'tour-open-btn'},'Open');ob.onclick=(function(tid){return function(){openTourById(tid)}})(t.id);
     var db4=mk('button',{class:'tour-del-btn'},'X');db4.onclick=(function(tid,tname){return function(){deleteTour(tid,tname)}})(t.id,t.name);
@@ -1019,12 +1013,11 @@ function renderTourList(){
   });
 }
 window.openTourById=function(id){var t=tournaments.find(function(x){return x.id===id});if(t) openTournament(t,true)}
-window.closeTournament=function(){activeTourId=null;tourTeamA=null;tourTeamB=null;window._tourSlot=null;window._editTourMatchId=null;if(window._tourUnsub){window._tourUnsub();window._tourUnsub=null;}var ta=document.getElementById('tour-active');ta.style.display='none';var btn=document.getElementById('tour-save-btn');if(btn){btn.textContent='Save Match';btn.style.background='var(--green)';}showToast('Tournament closed');}
-function openTournament(t,scroll){
-  tourMatches=[];tourTeamA=null;tourTeamB=null;window._tourSlot=null;window._editTourMatchId=null;if(window._tourUnsub) window._tourUnsub();
+window.closeTournament=function(){activeTourId=null;tourTeamA=null;tourTeamB=null;window._editTourMatchId=null;var ta=document.getElementById('tour-active');ta.style.display='none';var btn=document.getElementById('tour-save-btn');if(btn){btn.textContent='Save Match';btn.style.background='var(--green)';}showToast('Tournament closed');}
+function openTournament(t,scroll){tourMatches=[];tourTeamA=null;tourTeamB=null;window._tourSlot=null;window._editTourMatchId=null;if(window._tourUnsub) window._tourUnsub();
   activeTourId=t.id;document.getElementById('tour-active-name').textContent=t.name;var ta=document.getElementById('tour-active');ta.style.display='flex';
   window._tourUnsub=onSnapshot(query(collection(db,'tour_matches_'+t.id),orderBy('ts','desc')),function(snap){tourMatches=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});var c=tournaments.find(function(x){return x.id===t.id})||t;renderPointsTable(c);renderTourProgress(c);renderTourTeamSel(c);renderTourMatchList(c);if(c.matchCount!==tourMatches.length) setDoc(doc(db,'tournaments',t.id),{matchCount:tourMatches.length},{merge:true});});
-  renderTourTeamSel(t);renderTourProgress(t);if(scroll) setTimeout(function(){ta.scrollIntoView({behavior:'smooth'})},200);
+  renderTourTeamSel(t);if(scroll) setTimeout(function(){ta.scrollIntoView({behavior:'smooth'})},200);
 }
 function renderPointsTable(t){
   var teams=t.teams||[],stats={};
@@ -1049,12 +1042,12 @@ function renderTourTeamSel(t){
   var list=st==='semi'?(t.semis||[]).map(function(s,i){return{slot:'semi'+(i+1),label:'SF'+(i+1),a:s.a,b:s.b}}):[{slot:'final',label:'FINAL',a:t.finalists[0],b:t.finalists[1]}];
   list.forEach(function(f){
     var m=koMatch(f.slot);
-    var b=mk('button',{class:'pair-chip'+(window._tourSlot===f.slot?' sel-a':'')},f.label+': '+tn(t,f.a)+' vs '+tn(t,f.b)+(m?'  ('+m.scoreA+'-'+m.scoreB+')':''));
+    var b=mk('button',{class:'pair-chip'+(window._tourSlot===f.slot?' sel-a':'')},f.label+': '+tName(t,f.a)+' vs '+tName(t,f.b)+(m?'  ('+m.scoreA+'-'+m.scoreB+')':''));
     b.onclick=function(){
       tourTeamA=f.a;tourTeamB=f.b;window._tourSlot=f.slot;
       var ex=koMatch(f.slot);window._editTourMatchId=ex?ex.id:null;
       document.getElementById('tour-score-a').value=ex?ex.scoreA:'';document.getElementById('tour-score-b').value=ex?ex.scoreB:'';
-      document.getElementById('tour-lbl-a').textContent=tn(t,f.a).toUpperCase();document.getElementById('tour-lbl-b').textContent=tn(t,f.b).toUpperCase();
+      document.getElementById('tour-lbl-a').textContent=tName(t,f.a).toUpperCase();document.getElementById('tour-lbl-b').textContent=tName(t,f.b).toUpperCase();
       renderTourTeamSel(t);
     };
     fx.appendChild(b);
@@ -1074,7 +1067,7 @@ window.saveTourMatch=async function(){
   if(!tourTeamA||!tourTeamB){showTourMsg('Select both teams!','#FF3D00');return;}if(tourTeamA===tourTeamB){showTourMsg('Different teams!','#FF3D00');return;}
   var sA=parseInt(document.getElementById('tour-score-a').value),sB=parseInt(document.getElementById('tour-score-b').value);if(isNaN(sA)||isNaN(sB)){showTourMsg('Enter scores!','#FFB300');return;}
   var hi=Math.max(sA,sB),lo=Math.min(sA,sB);if(hi<21){showTourMsg('Need 21+!','#FFB300');return;}if(hi===21&&lo>=20){showTourMsg('Deuce!','#FFB300');return;}if(hi>21&&(hi-lo)<2){showTourMsg('Need 2 point lead!','#FFB300');return;}if(hi>30||(hi===30&&lo!==29)){showTourMsg('Invalid!','#FF3D00');return;}
-  var t=_t0,tmA=(t.teams||[]).find(function(x){return x.id===tourTeamA}),tmB=(t.teams||[]).find(function(x){return x.id===tourTeamB}),winner=sA>sB?tourTeamA:sB>sA?tourTeamB:'draw';
+  var t=tournaments.find(function(x){return x.id===activeTourId}),tmA=(t.teams||[]).find(function(x){return x.id===tourTeamA}),tmB=(t.teams||[]).find(function(x){return x.id===tourTeamB}),winner=sA>sB?tourTeamA:sB>sA?tourTeamB:'draw';
   var mdata={teamAId:tourTeamA,teamBId:tourTeamB,teamAName:tmA?tmA.name:'?',teamBName:tmB?tmB.name:'?',scoreA:sA,scoreB:sB,winnerId:winner,date:TODAY,stage:(_st==='league'?'league':window._tourSlot),ts:Date.now()};
   if(window._editTourMatchId){await setDoc(doc(db,'tour_matches_'+activeTourId,window._editTourMatchId),mdata);window._editTourMatchId=null;var btn=document.getElementById('tour-save-btn');if(btn){btn.textContent='Save Match';btn.style.background='var(--green)';}showTourMsg('Match updated!','#00C853');}
   else{await addDoc(collection(db,'tour_matches_'+activeTourId),mdata);if(winner!=='draw'){launchConfetti();flyShuttle();}showTourMsg(winner==='draw'?'Draw! ('+sA+'-'+sB+')':'Win! ('+sA+'-'+sB+')','#00C853');}
@@ -1105,9 +1098,9 @@ async function delTourMatch(mid){var _m=tourMatches.find(function(x){return x.id
 function renderTourTeamPicker(){var picker=document.getElementById('tour-team-picker');if(!picker) return;picker.innerHTML='';pairs.forEach(function(p){var btn=mk('button',{class:'tour-picker-btn'+(tourPickedPairs.indexOf(p.id)>=0?' sel':'')},p.name+(p.playerA&&p.playerB?' ('+p.playerA+' & '+p.playerB+')':''));btn.onclick=(function(pid,b){return function(){var idx=tourPickedPairs.indexOf(pid);if(idx>=0){tourPickedPairs.splice(idx,1);b.classList.remove('sel');}else{tourPickedPairs.push(pid);b.classList.add('sel');}}})(p.id,btn);picker.appendChild(btn);});}
 window.showNewTourModal=function(){tourPickedPairs=[];renderTourTeamPicker();document.getElementById('tour-name-inp').value='';document.getElementById('tour-create-msg').textContent='';document.getElementById('new-tour-modal').style.display='flex';}
 window.closeNewTourModal=function(){document.getElementById('new-tour-modal').style.display='none'}
-window.createTournament=async function(){var name=document.getElementById('tour-name-inp').value.trim();if(!name){document.getElementById('tour-create-msg').textContent='Enter a name!';return;}if(tourPickedPairs.length<2){document.getElementById('tour-create-msg').textContent='Select at least 2 teams!';return;}var teams=tourPickedPairs.map(function(pid){var p=pairs.find(function(x){return x.id===pid});return{id:pid,name:p?p.name:'?',players:[p?p.playerA:null,p?p.playerB:null].filter(Boolean)}});var ref=await addDoc(tourCol,{name:name,teams:teams,matchCount:0,stage:'league',ts:Date.now()});closeNewTourModal();setTimeout(function(){openTourById(ref.id)},500);}
+window.createTournament=async function(){var name=document.getElementById('tour-name-inp').value.trim();if(!name){document.getElementById('tour-create-msg').textContent='Enter a name!';return;}if(tourPickedPairs.length<2){document.getElementById('tour-create-msg').textContent='Select at least 2 teams!';return;}var teams=tourPickedPairs.map(function(pid){var p=pairs.find(function(x){return x.id===pid});return{id:pid,name:p?p.name:'?',players:[p?p.playerA:null,p?p.playerB:null].filter(Boolean)}});var ref=await addDoc(tourCol,{name:name,teams:teams,matchCount:0,ts:Date.now()});closeNewTourModal();setTimeout(function(){openTourById(ref.id)},500);}
 window.deleteTour=async function(id,name){if(!confirm('Delete '+name+'?')) return;await deleteDoc(doc(db,'tournaments',id));if(activeTourId===id) closeTournament();}
-window.shareTourWA=function(){var t=tournaments.find(function(x){return x.id===activeTourId});if(!t) return;var teams=t.teams||[],stats={};teams.forEach(function(tm){stats[tm.id]={id:tm.id,name:tm.name,players:tm.players||[],mp:0,won:0,lost:0,pf:0,pa:0,pts:0}});leagueMatches().forEach(function(m){if(stats[m.teamAId]){stats[m.teamAId].mp++;stats[m.teamAId].pf+=m.scoreA||0;stats[m.teamAId].pa+=m.scoreB||0;}if(stats[m.teamBId]){stats[m.teamBId].mp++;stats[m.teamBId].pf+=m.scoreB||0;stats[m.teamBId].pa+=m.scoreA||0;}if(m.winnerId!=='draw'){if(stats[m.winnerId]){stats[m.winnerId].won++;stats[m.winnerId].pts+=2;}var lid=m.winnerId===m.teamAId?m.teamBId:m.teamAId;if(stats[lid]) stats[lid].lost++;}else{if(stats[m.teamAId]) stats[m.teamAId].pts+=1;if(stats[m.teamBId]) stats[m.teamBId].pts+=1;}});var sorted=Object.values(stats).sort(function(a,b){return b.pts-a.pts||(b.pf-b.pa)-(a.pf-a.pa)});var table=sorted.map(function(s,i){var diff=s.pf-s.pa;return (i+1)+'. '+s.name+' ('+s.players.join(' & ')+')\n   '+s.mp+'MP '+s.won+'W '+s.lost+'L '+s.pf+'-'+s.pa+' ('+(diff>=0?'+':'')+diff+') '+s.pts+' pts'}).join('\n');var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});window.open('https://wa.me/?text='+encodeURIComponent('Tournament: '+t.name+'\n'+d+'\n\nLeague Table:\n'+table+'\n\nMatches: '+tourMatches.length+bracketText(t)),'_blank');}
+window.shareTourWA=function(){var t=tournaments.find(function(x){return x.id===activeTourId});if(!t) return;var teams=t.teams||[],stats={};teams.forEach(function(tm){stats[tm.id]={id:tm.id,name:tm.name,players:tm.players||[],mp:0,won:0,lost:0,pf:0,pa:0,pts:0}});leagueMatches().forEach(function(m){if(stats[m.teamAId]){stats[m.teamAId].mp++;stats[m.teamAId].pf+=m.scoreA||0;stats[m.teamAId].pa+=m.scoreB||0;}if(stats[m.teamBId]){stats[m.teamBId].mp++;stats[m.teamBId].pf+=m.scoreB||0;stats[m.teamBId].pa+=m.scoreA||0;}if(m.winnerId!=='draw'){if(stats[m.winnerId]){stats[m.winnerId].won++;stats[m.winnerId].pts+=2;}var lid=m.winnerId===m.teamAId?m.teamBId:m.teamAId;if(stats[lid]) stats[lid].lost++;}else{if(stats[m.teamAId]) stats[m.teamAId].pts+=1;if(stats[m.teamBId]) stats[m.teamBId].pts+=1;}});var sorted=Object.values(stats).sort(function(a,b){return b.pts-a.pts||(b.pf-b.pa)-(a.pf-a.pa)});var table=sorted.map(function(s,i){var diff=s.pf-s.pa;return (i+1)+'. '+s.name+' ('+s.players.join(' & ')+')\n   '+s.mp+'MP '+s.won+'W '+s.lost+'L '+s.pf+'-'+s.pa+' ('+(diff>=0?'+':'')+diff+') '+s.pts+' pts'}).join('\n');var d=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});window.open('https://wa.me/?text='+encodeURIComponent('Tournament: '+t.name+'\n'+d+'\n\nPoints Table:\n'+table+'\n\nMatches: '+tourMatches.length+bracketText(t)),'_blank');}
 // AI BOT
 window.toggleAI=function(){aiOpen=!aiOpen;document.getElementById('ai-panel').classList.toggle('open',aiOpen);if(aiOpen&&!aiGreeted){aiGreeted=true;setTimeout(doAiGreet,400);}if(aiOpen) setTimeout(function(){document.getElementById('ai-inp').focus()},300);}
 function doAiGreet(){var name=myName||'Player',hour=new Date().getHours(),greet=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';var v=votes.filter(function(x){return x.type!=='system'}),yes=v.filter(function(x){return x.vote==='yes'}).length;addBotMsg(greet+', '+name+'! Ready for tonights badminton? '+(v.length===0?'No votes yet!':yes+' player'+(yes!==1?'s':'')+' in so far!'));}
